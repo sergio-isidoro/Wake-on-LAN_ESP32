@@ -38,3 +38,7 @@ A simple ESP32-based implementation for sending Wake-on-LAN (WOL) Magic Packets 
 ---
 
 Thank you for exploring this project! 💡
+
+## Github link
+
+[Wake-on-LAN_ESP32C3](https://github.com/manoper93/Wake-on-LAN_ESP32C3)
