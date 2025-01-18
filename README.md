@@ -17,7 +17,7 @@ A simple ESP32-based implementation for sending Wake-on-LAN (WOL) Magic Packets 
 
 - An **ESP32** microcontroller.
 - A device capable of being woken up via **Wake-on-LAN**.
-- A **push button** connected to GPIO2 (or a configurable GPIO pin).
+- A **push button** connected to GPIO2/D0 (or a configurable GPIO pin).
 - Wi-Fi network credentials.
 - WakeOnLanMonitor.exe for testing.
 
@@ -27,13 +27,13 @@ A simple ESP32-based implementation for sending Wake-on-LAN (WOL) Magic Packets 
 
 ### 1️⃣ Setup Hardware
 
-1. Connect a push button to GPIO2 (or modify the code for a different GPIO pin).
+1. Connect a push button to GPIO2/D0 (or modify the code for a different GPIO pin).
 2. Ensure the ESP32 is powered and connected to your network.
 
 ---
 
 ## 🎯 **Next Steps**
-- Implement deep sleep.
+- Implement deep sleep. (DONE ✅)
 
 ---
 
