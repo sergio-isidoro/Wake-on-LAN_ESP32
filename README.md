@@ -1,39 +1,36 @@
-# 🔥 Wake-on-LAN with ESP32C3
+# 🔥 Wake-on-LAN V2 with ESP32 + MQTT (Light Sleep Mode)
 
-A simple ESP32-based implementation for sending Wake-on-LAN (WOL) Magic Packets over a Wi-Fi network. This project demonstrates how to configure an ESP32 to wake up devices using Magic Packets triggered by a button press.
+A fully featured ESP32 project that sends Wake-on-LAN (WOL) Magic Packets over Wi-Fi — now enhanced with **MQTT control**, **light sleep**, **ping-based online status**, **watchdog safety**, and **hardware button wake-up**.
+
+> This project supports near-instant wake-up via MQTT **without reconnecting Wi-Fi** using **light sleep**, while keeping power usage low.
 
 ---
 
 ## 📋 Features
 
-- 🌐 **Wi-Fi Integration**: Connects to a specified Wi-Fi network.
-- 🖥️ **Wake-on-LAN (WOL)**: Sends Magic Packets to wake up compatible devices.
-- 🔘 **Hardware Button Support**: Sends the WOL signal when a button is pressed.
-- ⚡ **Efficient Loop**: Minimal delays to ensure responsiveness.
+- 🌐 **Wi-Fi Integration**: Connects to a secured network.
+- 🖥️ **Wake-on-LAN**: Sends Magic Packets to wake compatible computers.
+- 🔘 **Hardware Button Wake**: Triggers WOL by pressing a button on GPIO2.
+- ☁️ **MQTT Support**: Receives `"turnon"` command and publishes `"online"` / `"offline"` based on ping result.
+- 🔄 **Magic Packet Burst**: Sends 10 packets, spaced at 100ms intervals.
+- 💤 **Light Sleep Mode**: Keeps MQTT and Wi-Fi alive while reducing power.
+- 🧠 **Ping Status Detection**: Pings target device to report online/offline status.
+- 🐶 **Watchdog Timer**: Auto-restarts if Wi-Fi or MQTT hangs.
+- 🔆 **LED Indicator**: GPIO3 (D1) turns on at boot.
 
 ---
 
 ## 🛠️ Requirements
 
-- An **ESP32** microcontroller.
-- A device capable of being woken up via **Wake-on-LAN**.
-- A **push button** connected to GPIO2/D0 (or a configurable GPIO pin).
-- Wi-Fi network credentials.
-- WakeOnLanMonitor.exe for testing.
-
----
-
-## 🚀 Getting Started
-
-### 1️⃣ Setup Hardware
-
-1. Connect a push button to GPIO2/D0 (or modify the code for a different GPIO pin).
-2. Ensure the ESP32 is powered and connected to your network.
-
----
-
-## 🎯 **Next Steps**
-- Implement deep sleep. (DONE ✅)
+- An **ESP32** (e.g., ESP32C3, ESP32-WROOM, etc).
+- A PC configured for **Wake-on-LAN** (WOL).
+- Access to an **MQTT broker** (e.g., HiveMQ, Mosquitto, etc).
+- A **push button** connected to **GPIO2** (D0).
+- The following Arduino libraries:
+  - `ESP32Ping`
+  - `AsyncMqttClient`
+  - `ESPAsyncTCP`
+- Wi-Fi credentials and target MAC/IP.
 
 ---
 
