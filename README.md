@@ -38,7 +38,6 @@ Thank you for exploring this project! 💡
 
 ## Image
 
-![image](https://github.com/user-attachments/assets/ea2b2090-3d08-4e16-9848-cc1cb8b4bd79)
 ![pin_map-2](https://github.com/user-attachments/assets/5ac26256-06c6-40ae-ab29-bd35d11dfe80)
 
 ## Github link
