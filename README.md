@@ -1,40 +1,70 @@
-# 🔥 Wake-on-LAN V2 with ESP32 + MQTT (Light Sleep Mode)
+# 🔥 Wake-on-LAN V2 with ESP32 + MQTT (Light Sleep Mode + Watchdog)
 
-A fully featured ESP32 project that sends Wake-on-LAN (WOL) Magic Packets over Wi-Fi — now enhanced with **MQTT control**, **light sleep**, **ping-based online status**, **watchdog safety**, and **hardware button wake-up**.
+A complete ESP32-based project for sending Wake-on-LAN (WOL) Magic Packets over Wi-Fi, now upgraded with:
 
-> This project supports near-instant wake-up via MQTT **without reconnecting Wi-Fi** using **light sleep**, while keeping power usage low.
+- **MQTT remote control**
+- **Light sleep mode for energy efficiency**
+- **Ping-based device status**
+- **Hardware watchdog timer**
+- **Button-triggered wake**
+- **Online/offline MQTT reporting**
+
+> 💤 Efficient light sleep with watchdog refresh ensures low-power operation without disconnecting Wi-Fi or MQTT. Wake-up can occur via GPIO or network command.
 
 ---
 
 ## 📋 Features
 
-- 🌐 **Wi-Fi Integration**: Connects to a secured network.
-- 🖥️ **Wake-on-LAN**: Sends Magic Packets to wake compatible computers.
-- 🔘 **Hardware Button Wake**: Triggers WOL by pressing a button on GPIO2.
-- ☁️ **MQTT Support**: Receives `"turnon"` command and publishes `"online"` / `"offline"` based on ping result.
-- 🔄 **Magic Packet Burst**: Sends 10 packets, spaced at 100ms intervals.
-- 💤 **Light Sleep Mode**: Keeps MQTT and Wi-Fi alive while reducing power.
-- 🧠 **Ping Status Detection**: Pings target device to report online/offline status.
-- 🐶 **Watchdog Timer**: Auto-restarts if Wi-Fi or MQTT hangs.
-- 🔆 **LED Indicator**: GPIO3 (D1) turns on at boot.
+- 🌐 **Wi-Fi Integration**: Connects securely to your local Wi-Fi network.
+- 🖥️ **Wake-on-LAN**: Sends standard WOL Magic Packets to turn on compatible PCs.
+- 🔘 **Hardware Button Wake**: Wakes target device by button press on GPIO0 (D0).
+- ☁️ **MQTT Support**: Receives `"TurnOn"` command and reports online status via topics.
+- 🔄 **Magic Packet Burst**: Sends 10 packets at 100ms intervals for reliability.
+- 💤 **Light Sleep Mode**: Uses `esp_light_sleep_start()` to reduce current while maintaining fast wake-up and MQTT/Wi-Fi connection.
+- 🧠 **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target is online.
+- 🐶 **Watchdog Timer**: Hardware watchdog using `hw_timer_t` resets the ESP if it hangs (e.g., during Wi-Fi connection).
+- 🔆 **LED Indicator**: GPIO1 (D1) indicates WOL operation and activity.
+- 🔋 **Sleep Control Pin**: GPIO2 (D2) enables sleep mode with watchdog refresh.
 
 ---
 
 ## 🛠️ Requirements
 
-- An **ESP32** (e.g., ESP32C3, ESP32-WROOM, etc).
-- A PC configured for **Wake-on-LAN** (WOL).
-- Access to an **MQTT broker** (e.g., HiveMQ, Mosquitto, etc).
-- A **push button** connected to **GPIO2** (D0).
-- The following Arduino libraries:
-  - `ESP32Ping`
-  - `AsyncMqttClient`
-  - `ESPAsyncTCP`
-- Wi-Fi credentials and target MAC/IP.
+- An **ESP32 board** (e.g., WROOM, C3, etc).
+- Target PC or device with **Wake-on-LAN enabled**.
+- Access to an **MQTT broker** (e.g., Mosquitto, HiveMQ).
+- **Button** connected to **GPIO0** (D0).
+- **Sleep control input** connected to **GPIO2** (D2).
+- **LED** connected to **GPIO1** (D1) for feedback.
+- Libraries used:
+  - `WiFi.h`
+  - `WiFiClientSecure.h`
+  - `WiFiUDP.h`
+  - `PubSubClient.h`
+  - `ESP32Ping.h`
 
 ---
 
-Thank you for exploring this project! 💡
+## 📡 MQTT Topics
+
+- `wol/event`: Subscribe to receive `"TurnOn"` command.
+- `wol/status`: Publishes `"On"` or `"Off"` based on ping to the target IP.
+- `wol/log`: Publishes status and debug logs (e.g., Magic Packet sent, sleeping...).
+
+---
+
+## 🧪 Behavior Overview
+
+- On boot, connects to Wi-Fi and MQTT broker.
+- Publishes status (based on ping).
+- Listens for MQTT `"TurnOn"` command or GPIO0 button press.
+- Sends Magic Packets and updates MQTT status.
+- Enters light sleep if sleep mode is enabled via GPIO2.
+- Watchdog timer ensures the ESP auto-resets if the system becomes unresponsive.
+
+---
+
+Thank you for exploring this project! 🚀
 
 ## Image
 
