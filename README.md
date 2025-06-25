@@ -21,7 +21,7 @@ A complete ESP32-based project for sending Wake-on-LAN (WOL) Magic Packets over 
 - ☁️ **MQTT Support**: Receives `"TurnOn"` command and reports online status via topics.
 - 🔄 **Magic Packet Burst**: Sends 10 packets at 100ms intervals for reliability.
 - 💤 **Light Sleep Mode**: Uses `esp_light_sleep_start()` to reduce current while maintaining fast wake-up and MQTT/Wi-Fi connection.
-- 🧠 **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target is online.
+- 🧠 **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target is online after event or every 1 min.
 - 🐶 **Watchdog Timer**: Hardware watchdog using `hw_timer_t` resets the ESP if it hangs (e.g., during Wi-Fi connection).
 - 🔆 **LED Indicator**: GPIO1 (D1) indicates WOL operation and activity.
 - 🔋 **Sleep Control Pin**: GPIO2 (D2) enables sleep mode with watchdog refresh.
