@@ -153,16 +153,17 @@ void enterLightSleep(uint64_t duration_us) {
 
 void setup() {
   Serial.begin(115200);
-  delay(300);
+  delay(1000);
   boot++;
 
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LOW);
 
   pinMode(SLEEP_GPIO, INPUT_PULLUP);
-  if (digitalRead(SLEEP_GPIO) == 0) gpioSleep = true;
-  
-  setupWatchdog();
+  if (digitalRead(SLEEP_GPIO) == 0){
+    gpioSleep = true;
+    setupWatchdog();
+  }
 
   pinMode(BUTTON_GPIO, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(BUTTON_GPIO), gpioISR, FALLING);
@@ -171,7 +172,7 @@ void setup() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    resetWatchdog();
+    if (digitalRead(SLEEP_GPIO) == 0) resetWatchdog();
   }
 
   Serial.println("\nWiFi connected");
@@ -195,7 +196,6 @@ void setup() {
 }
 
 void loop() {
-  resetWatchdog();
 
   if (gpioTriggered) {
     gpioTriggered = false;
@@ -209,6 +209,7 @@ void loop() {
   }
 
   if (gpioSleep) {
+    resetWatchdog();
     if (millis() - lastActionTime > 10000) {
       mqttClient.publish(mqtt_topic_log, "Entering light sleep for 5s");
       Serial.print("Entering light sleep for 5s");
@@ -216,6 +217,11 @@ void loop() {
       delay(200);
       enterLightSleep(5 * 1000000);
       digitalWrite(LED_PIN, HIGH);
+      lastActionTime = millis();
+    }
+  } else {
+      if (millis() - lastActionTime > 5 * 1000000) {
+      mqttClient.publish(mqtt_topic_log, "Checking ping");
       lastActionTime = millis();
     }
   }
