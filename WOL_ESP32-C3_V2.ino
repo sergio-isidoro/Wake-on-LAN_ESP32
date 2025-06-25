@@ -220,7 +220,7 @@ void loop() {
       lastActionTime = millis();
     }
   } else {
-      if (millis() - lastActionTime > 60 * 1000000) {
+      if (millis() - lastActionTime > 60000) {
       mqttClient.publish(mqtt_topic_log, "Checking ping every 1 min");
       bool reachable = Ping.ping(targetIP, 3);
       mqttClient.publish(mqtt_topic_status, reachable ? "On" : "Off");
