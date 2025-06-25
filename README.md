@@ -68,7 +68,8 @@ Thank you for exploring this project! 🚀
 
 ## Image
 
-![pin_map-2](https://github.com/user-attachments/assets/5ac26256-06c6-40ae-ab29-bd35d11dfe80)
+![SHEMATIC](https://github.com/user-attachments/assets/16293e5b-ca63-4bf4-b712-d77d34c49461)
+![PINOUT](https://github.com/user-attachments/assets/5ac26256-06c6-40ae-ab29-bd35d11dfe80)
 
 ## Github link
 
