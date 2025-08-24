@@ -1,14 +1,13 @@
-# ⚡ ESP32 Wake-on-LAN + MQTT (Light Sleep + Watchdog + Logging) -> v3.0
+# ⚡ ESP32 Wake-on-LAN + MQTT (Light Sleep + Watchdog + Logging) -> v3.1
 
 A complete **ESP32-based project** for sending **Wake-on-LAN (WOL) Magic Packets** over Wi-Fi, with MQTT integration, hardware watchdog, and light sleep support.
 
 Includes:
-- **Remote control via MQTT**
-- **Physical button trigger**
-- **Light sleep mode with watchdog refresh**
-- **Target status monitoring via ping**
-- **Detailed logging via MQTT**
-- **Visual feedback with LED**
+- **Light sleep mode for energy efficiency**
+- **Ping-based device status**
+- **Hardware watchdog timer**
+- **Button-triggered wake**
+- **Online/offline MQTT reporting**
 
 > 🔋 Optimized for low power using `esp_light_sleep_start()` while keeping Wi-Fi/MQTT active, with hardware watchdog ensuring recovery in case of hangs.
 
@@ -16,40 +15,31 @@ Includes:
 
 ## 📋 Features
 
-- 🌐 **Wi-Fi**: Auto-connects to your local network.
-- 🖥️ **Wake-on-LAN**: Sends standard Magic Packets.
-- 🔘 **Physical Button**: GPIO0 (D0) triggers Magic Packets.
-- ☁️ **MQTT**:
-  - Listens for `"TurnOn"` on `wol/event`.
-  - Publishes device status (`On`/`Off`) to `wol/status`.
-  - Publishes logs and events to `wol/log`.
-- 🔄 **Burst Packets**: 10 packets sent every 100 ms for reliability.
-- 💤 **Light Sleep + Watchdog**:
-  - Enabled when GPIO2 (D2) is pulled LOW.
-  - Hardware watchdog resets ESP32 if it hangs.
-- 🧠 **Ping Monitoring**:
-  - Runs after WOL events to confirm target is online.
-  - Periodic check every 60s when active.
-- 🔆 **LED Indicator**: GPIO1 (D1) lights up during WOL events.
-- 📝 **Advanced Logging**:
-  - Includes trigger reason (Boot, Button, MQTT).
-  - Timestamp (ms) for each action.
+- 🌐 **Wi-Fi Integration**: Connects to your local Wi-Fi network.
+- 🖥️ **Wake-on-LAN**: Sends standard WOL Magic Packets to wake compatible devices.
+- 🔘 **Hardware Button Wake**: GPIO0 button triggers Magic Packet burst.
+- ☁️ **MQTT Support**: Receives `"TurnOn"` command and reports device status via topics.
+- 🔄 **Magic Packet Burst**: Sends 10 packets at 100ms intervals for reliability.
+- 💤 **Light Sleep Mode**: Reduces power consumption using `esp_light_sleep_start()`.
+- 🧠 **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target is online.
+- 🐶 **Watchdog Timer**: Hardware watchdog resets ESP32 if system hangs.
+- 🔆 **LED Indicator**: GPIO1 shows WOL activity.
+- 🔌 **Sleep Control Pin**: GPIO2 enables/disables light sleep mode.
 
 ---
 
 ## 🛠️ Requirements
 
-- **ESP32 board** (WROOM, DevKit, C3, etc.)
+- ESP32 board (WROOM, C3, etc.)
 - Target device with **Wake-on-LAN enabled**
-- **MQTT broker** (Mosquitto, HiveMQ, etc.)
-- Hardware connections:
-  - **GPIO0 (D0)** → Button (with internal pull-up)
-  - **GPIO2 (D2)** → Sleep mode control (LOW = enabled)
-  - **GPIO1 (D1)** → LED indicator
-- Required libraries:
+- MQTT broker (e.g., Mosquitto, HiveMQ)
+- Button connected to **GPIO0** (D0)
+- LED connected to **GPIO1** (D1)
+- Sleep control input on **GPIO2** (D2)
+- Libraries used:
   - `WiFi.h`
-  - `WiFiUDP.h`
   - `WiFiClientSecure.h`
+  - `WiFiUDP.h`
   - `PubSubClient.h`
   - `ESP32Ping.h`
 
@@ -57,10 +47,10 @@ Includes:
 
 ## 📡 MQTT Topics
 
-- `wol/event` → Receives `"TurnOn"`
-- `wol/status` → Publishes `"On"` or `"Off"`
-- `wol/log` → Publishes debug messages and events (boot, WOL, sleep, ping, etc.)
-
+- `wol/event` – Subscribe to receive `"TurnOn"` commands.
+- `wol/status` – Publishes `"On"` or `"Off"` based on ping.
+- `wol/log` – Publishes debug logs (e.g., Magic Packet sent, entering sleep).
+- 
 ---
 
 ## 🧪 Behavior
@@ -85,31 +75,40 @@ Includes:
 
 ---
 
+## ⚙️ Pinout
+
+| Function            | GPIO  |
+|--------------------|-------|
+| LED Indicator       | D1    |
+| Button Input        | D0    |
+| Sleep Mode Control  | D2    |
+
+---
+
 ## ⚙️ Configuration
 
 Update these in the code before uploading:
 ```cpp
-const char* ssid = "...";
-const char* password = "...";
+const char* ssid = "???";
+const char* password = "???";
 
-const char* mqtt_server = "...";
-const int   mqtt_port = ...;
-const char* mqtt_user = "...";
-const char* mqtt_password = "...";
+const char* mqtt_server = "???";
+const int   mqtt_port = ????;
+const char* mqtt_user = "???";
+const char* mqtt_password = "???";
 
-const IPAddress targetIP(192, 168, 1, 100);   // Target PC IP
-const char* broadcastIP = "192.168.1.255";    // Network broadcast
-const uint8_t macAddress[6] = {0xAA,0xBB,0xCC,0xDD,0xEE,0xFF}; // Target PC MAC
+const IPAddress targetIP(192, 168, ???, ???);   // Target PC IP
+const char* broadcastIP = "192.168.???.255";    // Network broadcast
+const uint8_t macAddress[6] = {0x??,0x??,0x??,0x??,0x??,0x??}; // Target PC MAC
 ````
 
 ---
 
-## 🚀 Notes
+## 📈 Notes
 
-- Watchdog timeout: 15s (WATCHDOG_TIMEOUT).
-- Button debounce: 200 ms.
-- WOL burst: 10 UDP packets on port 9.
-- SSL certificate check is disabled (net.setInsecure() → testing only).
+- Button must be held for >2 seconds to trigger Magic Packet.
+- Watchdog timeout is set to 15 seconds.
+- Light sleep interval is 5 seconds; can be adjusted in enterLightSleep().
 
 # ✨ Thanks for checking out this project!
 
