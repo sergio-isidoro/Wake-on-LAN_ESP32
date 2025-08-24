@@ -195,7 +195,6 @@ void setup() {
 }
 
 void loop() {
-  resetWatchdog();                              // Reset watchdog
 
   static unsigned long pressStart = 0;
 
@@ -216,8 +215,8 @@ void loop() {
   }
 
   if (gpioSleep) {                              // Sleep mode active
+    resetWatchdog();
     if (millis() - lastActionTime > 10000) {   // Wait 10s
-      resetWatchdog();
       mqttClient.publish(mqtt_topic_log, "Entering light sleep for 5s");
       Serial.print("Entering light sleep for 5s");
       digitalWrite(LED_PIN, LOW);
@@ -235,3 +234,4 @@ void loop() {
     }
   }
 }
+
