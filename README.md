@@ -1,4 +1,4 @@
-# 🔥 Wake-on-LAN ESP32 + MQTT (Light Sleep & Watchdog)
+# 🔥 Wake-on-LAN ESP32 + MQTT (Light Sleep & Watchdog) v3.2
 
 An advanced ESP32-based project for sending **Wake-on-LAN (WOL) Magic Packets** over Wi-Fi, with full MQTT support, optional light sleep mode, and a hardware watchdog timer.
 
