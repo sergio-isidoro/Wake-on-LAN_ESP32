@@ -89,17 +89,21 @@ Includes:
 
 Update these in the code before uploading:
 ```cpp
-const char* ssid = "???";
-const char* password = "???";
+const char* ssid = "???";                                      // WiFi SSID
+const char* password = "???";                                  // WiFi password
 
-const char* mqtt_server = "???";
-const int   mqtt_port = ????;
-const char* mqtt_user = "???";
-const char* mqtt_password = "???";
+const char* mqtt_server = "???";                               // MQTT broker address
+const int mqtt_port = ????;                                    // MQTT broker port
+const char* mqtt_user = "???";                                 // MQTT username
+const char* mqtt_password = "???";                             // MQTT password
+const char* mqtt_topic_status = "wol/status";                  // MQTT topic for status
+const char* mqtt_topic_event  = "wol/event";                   // MQTT topic for events
+const char* mqtt_topic_log    = "wol/log";                     // MQTT topic for logs
 
-const IPAddress targetIP(192, 168, ???, ???);   // Target PC IP
-const char* broadcastIP = "192.168.???.255";    // Network broadcast
-const uint8_t macAddress[6] = {0x??,0x??,0x??,0x??,0x??,0x??}; // Target PC MAC
+const IPAddress targetIP(192, 168, ???, ???);                  // Target device IP for ping / magic packet
+const char* broadcastIP = "192.168.???.255";                   // Broadcast IP for Magic Packet
+const int udpPort = ????;                                      // UDP port for Magic Packet
+const uint8_t macAddress[6] = {0x??,0x??,0x??,0x??,0x??,0x??}; // Target MAC address
 ````
 
 ---
