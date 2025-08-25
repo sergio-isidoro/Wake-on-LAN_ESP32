@@ -1,13 +1,15 @@
-#include <WiFi.h>              // Include WiFi library
-#include <WiFiUdp.h>           // Include UDP support for WiFi
-#include <WiFiClientSecure.h>  // Include secure WiFi client (TLS/SSL)
-#include <PubSubClient.h>      // Include MQTT client library
-#include <ESP32Ping.h>         // Include ping library for ESP32
+#include <WiFi.h>                  // Include WiFi library for ESP32
+#include <WiFiUdp.h>               // Include UDP support for WiFi
+#include <WiFiClientSecure.h>      // Include secure WiFi client for TLS
+#include <PubSubClient.h>          // Include MQTT client library
+#include <ESP32Ping.h>             // Include library to ping devices
+#include <esp_sleep.h>             // Include ESP32 sleep functions
 
-#define SLEEP_GPIO D2          // GPIO used to trigger sleep mode
-#define LED_PIN D1             // GPIO for LED indicator
-#define BUTTON_GPIO D0         // GPIO for button input
-#define WATCHDOG_TIMEOUT 15000 // Watchdog timeout in milliseconds
+#define SLEEP_GPIO D2              // GPIO for sleep button
+#define LED_PIN D1                 // GPIO for status LED
+#define BUTTON_GPIO D0             // GPIO for user button
+#define WATCHDOG_TIMEOUT 120000   // Watchdog timeout: 2 minutes in ms
+#define BUTTON_PIN_BITMASK (1ULL << 2) // Bitmask for GPIO2 (used for wakeup)
 
 const char* ssid = "???";                   // WiFi SSID
 const char* password = "???";               // WiFi password
@@ -25,161 +27,185 @@ const char* broadcastIP = "192.168.???.255";  // Broadcast IP for Magic Packet
 const int udpPort = ????;                      // UDP port for Magic Packet
 const uint8_t macAddress[6] = {0x??,0x??,0x??,0x??,0x??,0x??}; // Target MAC address
 
-bool gpioSleep = false;                      // Flag for sleep mode
-RTC_DATA_ATTR int boot = 0;                  // Persistent boot count across deep sleep
+bool gpioSleep = false;                      // Flag for light sleep mode
+RTC_DATA_ATTR int boot = 0;                  // Boot counter stored in RTC memory
 
-WiFiUDP udp;                                 // UDP instance
-WiFiClientSecure net;                        // Secure network client
-PubSubClient mqttClient(net);                // MQTT client
-hw_timer_t* watchdog = NULL;                 // Watchdog timer
-unsigned long lastActionTime = 0;            // Timestamp of last action
+WiFiUDP udp;                                 // UDP object
+WiFiClientSecure net;                        // Secure WiFi client object
+PubSubClient mqttClient(net);                // MQTT client using secure network
+hw_timer_t* watchdog = NULL;                 // Hardware watchdog timer
+unsigned long lastActionTime = 0;            // Last action timestamp
 
-TaskHandle_t mqttTaskHandle = NULL;          // Handle for MQTT FreeRTOS task
+TaskHandle_t mqttTaskHandle = NULL;          // Task handle for MQTT task
 
 // ---- New variables ----
-volatile unsigned long lastInterruptTime = 0; // Debounce timestamp
-volatile bool gpioTriggered = false;          // Flag for GPIO trigger
-String lastTriggerReason = "Boot";            // Reason for last action (logging)
+volatile unsigned long lastInterruptTime = 0; // Last GPIO interrupt timestamp (for debounce)
+volatile bool gpioTriggered = false;          // Flag indicating GPIO trigger
+String lastTriggerReason = "Boot";            // Reason for last trigger, used for logging
 
+// Reset module immediately
 void IRAM_ATTR resetModule() {
-  esp_restart();                              // Restart ESP32 immediately
+  esp_restart();
 }
 
+// Reset watchdog timer
 void resetWatchdog() {
-  timerWrite(watchdog, 0);                    // Reset watchdog timer counter
+  timerWrite(watchdog, 0);
 }
 
+// Setup hardware watchdog for 5min sleep
 void setupWatchdog() {
-  watchdog = timerBegin(0, 80, true);         // Initialize hardware timer
-  timerAttachInterrupt(watchdog, &resetModule, true); // Attach ISR to reset module
-  timerAlarmWrite(watchdog, WATCHDOG_TIMEOUT * 1000, false); // Set timeout
-  timerAlarmEnable(watchdog);                // Enable timer alarm
+  watchdog = timerBegin(0, 80, true);                     // Create timer 0, prescaler 80
+  timerAttachInterrupt(watchdog, &resetModule, true);    // Attach ISR to reset module
+  timerAlarmWrite(watchdog, WATCHDOG_TIMEOUT * 1000, false); // 5min in microseconds
+  timerAlarmEnable(watchdog);                             // Enable watchdog
 }
 
+// Send WOL Magic Packet burst
 void sendMagicPacketBurst(const char* reason) {
-  Serial.println("Sending Magic Packets..."); // Log sending
-  mqttClient.publish(mqtt_topic_log, "Sending Magic Packets..."); // MQTT log
+  Serial.println("Sending Magic Packets...");
+  mqttClient.publish(mqtt_topic_log, "Sending Magic Packets...");
 
-  for (int i = 0; i < 10; i++) {            // Send 10 packets
+  for (int i = 0; i < 10; i++) {
     uint8_t packet[102];
-    memset(packet, 0xFF, 6);                 // Start with 6 FF bytes
-    for (int j = 1; j <= 16; j++) {         // Repeat MAC address 16 times
-      memcpy(&packet[j*6], macAddress, 6);
+    memset(packet, 0xFF, 6);           // Start with 6 bytes of 0xFF
+    for (int j = 1; j <= 16; j++) {
+      memcpy(&packet[j * 6], macAddress, 6); // Append target MAC 16 times
     }
 
-    udp.beginPacket(broadcastIP, udpPort);   // Send packet via UDP
+    udp.beginPacket(broadcastIP, udpPort); // Send UDP packet
     udp.write(packet, sizeof(packet));
     udp.endPacket();
-    delay(100);
+    delay(100);                            // Small delay between packets
   }
 
-  mqttClient.publish(mqtt_topic_status, "Magic Packet sent"); // Publish status
+  mqttClient.publish(mqtt_topic_status, "Magic Packet sent");
 
-  delay(1000);
-  bool reachable = Ping.ping(targetIP, 3);   // Ping target 3 times
-  mqttClient.publish(mqtt_topic_status, reachable ? "On" : "Off"); // Publish ping result
-
-  String logMsg = "Magic Packet sent - Reason: " + String(reason) + " @ " + String(millis()) + "ms"; // Log reason
+  // Log the reason for sending
+  String logMsg = "Magic Packet sent - Reason: " + String(reason) + " @ " + String(millis()) + "ms";
   mqttClient.publish(mqtt_topic_log, logMsg.c_str());
 }
 
+// MQTT callback for incoming messages
 void mqttCallback(char* topic, byte* payload, unsigned int length) {
   String message = "";
   for (int i = 0; i < length; i++) {
-    message += (char)payload[i];             // Convert payload to string
+    message += (char)payload[i];       // Convert payload to string
   }
 
-  Serial.print("MQTT received: ");           // Print received message
+  Serial.print("MQTT received: ");
   Serial.println(message);
 
-  if (message == "TurnOn") {                 // If MQTT command is "TurnOn"
-    digitalWrite(LED_PIN, HIGH);             // Turn on LED
-    Serial.print("MQTT 'TurnOn' received");  // Log to serial
-    mqttClient.publish(mqtt_topic_log, "MQTT 'TurnOn' received"); // MQTT log
-    lastTriggerReason = "MQTT TurnOn";       // Set trigger reason
-    sendMagicPacketBurst(lastTriggerReason.c_str()); // Send Magic Packet
-    digitalWrite(LED_PIN, LOW);              // Turn off LED
-    lastActionTime = millis();               // Update last action time
+  if (message == "TurnOn") {           // If command is TurnOn
+    digitalWrite(LED_PIN, HIGH);       // Turn on LED
+    Serial.print("MQTT 'TurnOn' received");
+    lastTriggerReason = "MQTT TurnOn";
+    sendMagicPacketBurst(lastTriggerReason.c_str()); // Send WOL
+    digitalWrite(LED_PIN, LOW);        // Turn off LED
+    lastActionTime = millis();
+  } else if (message == "PingPC") {    // If command is PingPC
+    digitalWrite(LED_PIN, HIGH);       // Turn on LED
+    Serial.print("MQTT 'PingPC' received");
+    lastTriggerReason = "MQTT PingPC";
+    bool reachable = Ping.ping(targetIP, 3); // Ping target
+    mqttClient.publish(mqtt_topic_status, reachable ? "On" : "Off");
+    String logMsg = "Check ping manually - Reason: " + String(lastTriggerReason) + " @ " + String(millis()) + "ms";
+    mqttClient.publish(mqtt_topic_log, logMsg.c_str());
+    digitalWrite(LED_PIN, LOW);        // Turn off LED
   }
 }
 
+// Connect to MQTT broker
 void connectToMqtt() {
-  mqttClient.setServer(mqtt_server, mqtt_port);   // Set MQTT server
-  mqttClient.setCallback(mqttCallback);           // Set callback
-  net.setInsecure();                               // Ignore SSL certificates
+  mqttClient.setServer(mqtt_server, mqtt_port);
+  mqttClient.setCallback(mqttCallback);
+  net.setInsecure();                   // Ignore SSL certificate (testing only)
 
-  while (!mqttClient.connected()) {               // Keep trying to connect
+  while (!mqttClient.connected()) {    // Retry until connected
     Serial.print("Connecting to MQTT... ");
-    if (mqttClient.connect("ESP32Client", mqtt_user, mqtt_password, mqtt_topic_status, 1, false, "offline")) {
-      Serial.println("connected");                // Connected
-      mqttClient.subscribe(mqtt_topic_event);     // Subscribe to event topic
-      mqttClient.publish(mqtt_topic_log, "MQTT connected"); // MQTT log
+    if (mqttClient.connect("ESP32Client", mqtt_user, mqtt_password, mqtt_topic_status, 1, false, "Client offline")) {
+      Serial.println("connected");
+      mqttClient.subscribe(mqtt_topic_event);        // Subscribe to events
+      mqttClient.publish(mqtt_topic_log, "MQTT connected");
 
       mqttClient.publish(mqtt_topic_event, "", true); // Clear old retained messages
 
-      bool reachable = Ping.ping(targetIP, 3);   // Ping target
-      mqttClient.publish(mqtt_topic_status, reachable ? "On" : "Off"); // Publish ping result
-      lastActionTime = millis();                  // Update last action time
+      bool reachable = Ping.ping(targetIP, 3);       // Initial ping
+      mqttClient.publish(mqtt_topic_status, reachable ? "On" : "Off");
+      lastActionTime = millis();
     } else {
       Serial.print("failed, rc=");
-      Serial.print(mqttClient.state());          // Print error code
+      Serial.print(mqttClient.state());
       Serial.println(" -> retrying...");
       delay(3000);
     }
   }
 }
 
+// MQTT task loop
 void mqttTask(void* parameter) {
   for (;;) {
-    if (WiFi.status() != WL_CONNECTED) WiFi.reconnect(); // Reconnect WiFi
+    if (WiFi.status() != WL_CONNECTED) {
+      WiFi.reconnect();            // Reconnect WiFi if disconnected
+    }
 
-    if (!mqttClient.connected()) connectToMqtt();       // Reconnect MQTT
+    if (!mqttClient.connected()) {
+      connectToMqtt();             // Reconnect MQTT if disconnected
+    }
 
-    mqttClient.loop();                                   // MQTT loop
-    vTaskDelay(10 / portTICK_PERIOD_MS);                // Delay for FreeRTOS
+    mqttClient.loop();             // Process MQTT messages
+    vTaskDelay(10 / portTICK_PERIOD_MS); // Short delay
   }
 }
 
+// GPIO interrupt for button press
 void IRAM_ATTR gpioISR() {
   unsigned long now = millis();
-  if (now - lastInterruptTime > 300) gpioTriggered = true; // Debounce 300ms
-}
-
-void enterLightSleep(uint64_t duration_us) {
-  esp_sleep_enable_timer_wakeup(duration_us); // Enable wakeup timer
-  esp_light_sleep_start();                    // Enter light sleep
-}
-
-void setup() {
-  Serial.begin(115200);                        // Start serial
-  delay(1000);
-  boot++;                                      // Increment boot count
-
-  pinMode(LED_PIN, OUTPUT);                    // LED pin
-  digitalWrite(LED_PIN, LOW);                  // Turn off LED
-
-  pinMode(SLEEP_GPIO, INPUT_PULLUP);           // Sleep GPIO
-  if (digitalRead(SLEEP_GPIO) == 0) {          // If LOW, enable sleep mode
-    gpioSleep = true;
-    setupWatchdog();                           // Start watchdog
+  if (now - lastInterruptTime > 300) {  // Debounce 300ms
+    gpioTriggered = true;
   }
+}
 
-  pinMode(BUTTON_GPIO, INPUT_PULLUP);          // Button GPIO
-  attachInterrupt(digitalPinToInterrupt(BUTTON_GPIO), gpioISR, FALLING); // Attach ISR
+// Enter light sleep for specified duration
+void enterLightSleep(uint64_t duration_us) {
+  esp_deep_sleep_enable_gpio_wakeup(1 << 2, ESP_GPIO_WAKEUP_GPIO_LOW); // Wake on GPIO2 low - NEW METHOD
+  esp_sleep_enable_timer_wakeup(duration_us);                          // Wake on timer
+  esp_light_sleep_start();                                              // Start light sleep
+}
 
-  WiFi.begin(ssid, password);                  // Connect to WiFi
+void connection(){
+  WiFi.begin(ssid, password);         // Connect to WiFi
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    if (digitalRead(SLEEP_GPIO) == 0) resetWatchdog(); // Feed watchdog while waiting
+    if (digitalRead(SLEEP_GPIO) == 0) resetWatchdog(); // Reset watchdog during wait
+  }
+  Serial.println("\nWiFi connected");
+  udp.begin(udpPort);                  // Start UDP
+  connectToMqtt();                     // Connect to MQTT broker
+}
+
+// Setup function
+void setup() {
+  Serial.begin(115200);       // Start serial
+  delay(1000);
+  boot++;                     // Increment boot counter
+
+  pinMode(LED_PIN, OUTPUT);   // Setup LED pin
+  digitalWrite(LED_PIN, LOW);
+
+  pinMode(SLEEP_GPIO, INPUT_PULLUP); // Setup sleep button with pull-up
+  if (digitalRead(SLEEP_GPIO) == 0){
+    gpioSleep = true;          // Enable sleep mode if pressed
+    setupWatchdog();           // Setup 30min watchdog
   }
 
-  Serial.println("\nWiFi connected");
-  udp.begin(udpPort);                          // Start UDP
+  pinMode(BUTTON_GPIO, INPUT_PULLUP); // Setup user button with pull-up
+  attachInterrupt(digitalPinToInterrupt(BUTTON_GPIO), gpioISR, FALLING); // Attach ISR
 
-  connectToMqtt();                              // Connect to MQTT
+  connection();
 
-  xTaskCreatePinnedToCore(
+  xTaskCreatePinnedToCore(             // Start MQTT task
     mqttTask,
     "MQTT Task",
     4096,
@@ -189,49 +215,54 @@ void setup() {
     1
   );
 
-  lastActionTime = millis();                    // Set last action time
-  String bootMsg = "Boot #" + String(boot) + " @ " + String(millis()) + "ms"; // Boot log
-  mqttClient.publish(mqtt_topic_log, bootMsg.c_str());
+  lastActionTime = millis();           // Initialize last action timestamp
+
+  String bootMsg = "Boot #" + String(boot) + " @ " + String(millis()) + "ms";
+  mqttClient.publish(mqtt_topic_log, bootMsg.c_str()); // Log boot message
 }
 
+// Main loop
 void loop() {
 
-  static unsigned long pressStart = 0;
-
-  if (gpioTriggered) {                          // GPIO triggered
-    unsigned long pressTime = millis();
-    while(digitalRead(BUTTON_GPIO) == LOW) {
-      if (millis() - pressTime > 2000) {       // Pressed > 2s
-        digitalWrite(LED_PIN, HIGH);
-        lastTriggerReason = "Button GPIO";     // Set reason
-        sendMagicPacketBurst(lastTriggerReason.c_str()); // Send packet
-        break;
+  if (gpioTriggered) {                  // If button triggered
+      static unsigned long buttonPressStart = 0;
+      if (digitalRead(BUTTON_GPIO) == LOW) {  // Button still pressed
+          if (buttonPressStart == 0) buttonPressStart = millis();
+          else if (millis() - buttonPressStart > 1000) { // Pressed >1s
+              lastTriggerReason = "Button GPIO";
+              sendMagicPacketBurst(lastTriggerReason.c_str()); // Send WOL
+              digitalWrite(LED_PIN, LOW);
+              lastActionTime = millis();
+              gpioTriggered = false;
+              buttonPressStart = 0;
+          }
+      } else {                          // Button released
+          gpioTriggered = false;
+          buttonPressStart = 0;
       }
-    }
-    gpioTriggered = false;
-    delay(300);
-    digitalWrite(LED_PIN, LOW);
-    lastActionTime = millis();
   }
 
-  if (gpioSleep) {                              // Sleep mode active
-    resetWatchdog();
-    if (millis() - lastActionTime > 10000) {   // Wait 10s
-      mqttClient.publish(mqtt_topic_log, "Entering light sleep for 5s");
-      Serial.print("Entering light sleep for 5s");
+  if (gpioSleep) {                      // If sleep mode enabled
+    resetWatchdog();                    // Reset watchdog
+    if (millis() - lastActionTime > 10000) { // Stay on 10s before sleep 
+      mqttClient.publish(mqtt_topic_log, "Entering light sleep for 1min");
+      Serial.print("Entering light sleep for 5min");
       digitalWrite(LED_PIN, LOW);
       delay(200);
-      enterLightSleep(5 * 1000000);            // Sleep 5 seconds
+      enterLightSleep(60000 * 1000);    // Sleep 1min
       digitalWrite(LED_PIN, HIGH);
+      mqttClient.publish(mqtt_topic_log, "Checking ping on WakeUp");
+      bool reachable = Ping.ping(targetIP, 3);
+      mqttClient.publish(mqtt_topic_status, reachable ? "On" : "Off");
       lastActionTime = millis();
+      digitalWrite(LED_PIN, LOW);
     }
-  } else {                                      // Normal mode
-    if (millis() - lastActionTime > 60000) {   // Every 1 min
-      mqttClient.publish(mqtt_topic_log, "Checking ping every 1 min");
-      bool reachable = Ping.ping(targetIP, 3); // Ping target
-      mqttClient.publish(mqtt_topic_status, reachable ? "On" : "Off"); // Publish status
+  } else {                              // Normal operation
+    if (millis() - lastActionTime > 300000) { // Every 5 min
+      mqttClient.publish(mqtt_topic_log, "Checking ping every 5 min");
+      bool reachable = Ping.ping(targetIP, 3);
+      mqttClient.publish(mqtt_topic_status, reachable ? "On" : "Off");
       lastActionTime = millis();
     }
   }
 }
-
