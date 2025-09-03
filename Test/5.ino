@@ -28,11 +28,11 @@
 // =======================
 // DEFINITIONS
 // =======================
-#define FIRMWARE_VERSION "8.0-OTAProgress"
-#define RESET_BUTTON_PIN 2   // GPIO2 → Factory reset
-#define BUTTON_GPIO      0   // GPIO0 → WOL button
-#define LED_GPIO         1   // GPIO1 → LED
-#define OTA_CHECK_INTERVAL_MS 300000UL // 5 minutes
+#define FIRMWARE_VERSION "5.0"
+#define RESET_BUTTON_PIN D2   // Factory reset
+#define BUTTON_GPIO      D0   // WOL button
+#define LED_GPIO         D1   // LED
+#define OTA_CHECK_INTERVAL_MS 60000UL // 1 minutes
 #define PING_DELAY_AFTER_WOL  60000UL  // 1 minute
 
 // Fixed OTA URLs
