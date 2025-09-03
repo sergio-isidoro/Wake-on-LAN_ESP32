@@ -5,8 +5,8 @@
 #include <HTTPClient.h>
 #include <esp_ota_ops.h>
 
-const char* versionURL  = "https://raw.githubusercontent.com/youruser/yourrepo/main/version.txt";
-const char* firmwareURL = "https://raw.githubusercontent.com/youruser/yourrepo/main/firmware.bin";
+const char* versionURL  = "https://raw.githubusercontent.com/sergio-isidoro/Wake-on-LAN_ESP32C3/refs/heads/main/firmware/version.txt";
+const char* firmwareURL = "https://github.com/sergio-isidoro/Wake-on-LAN_ESP32C3/raw/refs/heads/main/firmware/WOL_ESP32C3.bin";
 
 bool isUpdateAvailable(String &remoteVersionOut) {
   HTTPClient http; http.begin(versionURL);
