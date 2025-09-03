@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>WOL ESP32C3 Setup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 420px;
+      margin: auto;
+      background-color: #1e1e1e; /* cinza quase preto */
+      color: #f0f0f0;
+      padding: 20px;
+      border-radius: 12px;
+    }
+    input[type="text"], input[type="password"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0;
+      box-sizing: border-box;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background-color: #2a2a2a;
+      color: #f0f0f0;
+    }
+    input[type="text"]:focus, input[type="password"]:focus, input[type="number"]:focus {
+      outline: none;
+      border-color: #00bcd4;
+      background-color: #333;
+    }
+    .password-field {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .password-field label {
+      display: flex; align-items: center; gap: 4px;
+      font-weight: normal;
+      white-space: nowrap;
+      font-size: 0.9em;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 12px;
+      border: none;
+      border-radius: 6px;
+      background-color: #00bcd4;
+      color: #fff;
+      font-size: 1em;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0097a7;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 0.85em;
+      color: #bbb;
+    }
+    @media (max-width: 480px) {
+      body { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <h2>WOL ESP32C3 Setup Configuration</h2>
+  <form action="/save" method="post">
+    
+    <label>WiFi SSID:</label>
+    <input type="text" name="ssid" value="{ WIFI Name }" autocomplete="username">
+
+    <label>WiFi Password:</label>
+    <div class="password-field">
+      <input type="password" id="wifi_pass" name="password" value="{ WIFI Password }" autocomplete="current-password">
+      <label><input type="checkbox" onclick="togglePassword('wifi_pass')"> Show</label>
+    </div>
+
+    <label>MQTT Server:</label>
+    <input type="text" name="mqtt_server" value="{ MQTT Server }" autocomplete="url">
+
+    <label>MQTT Port:</label>
+    <input type="number" name="mqtt_port" value="{ MQTT Port }" min="1" max="65535">
+
+    <label>MQTT User:</label>
+    <input type="text" name="mqtt_user" value="{ MQTT User }" autocomplete="username">
+
+    <label>MQTT Password:</label>
+    <div class="password-field">
+      <input type="password" id="mqtt_pass" name="mqtt_password" value="{ MQTT Password }" autocomplete="current-password">
+      <label><input type="checkbox" onclick="togglePassword('mqtt_pass')"> Show</label>
+    </div>
+
+    <label>Target IP:</label>
+    <input type="text" name="target_ip" value="192.168.XXX.XXX" autocomplete="off">
+
+    <label>Broadcast IP:</label>
+    <input type="text" name="broadcastIP" value="192.168.XXX.255" autocomplete="off">
+
+    <label>UDP Port:</label>
+    <input type="number" name="udp_port" value="9" min="1" max="65535">
+
+    <label>MAC Address:</label>
+    <input type="text" name="mac" value="AA:BB:CC:DD:EE:FF" autocomplete="off">
+
+    <button type="submit">Save</button>
+  </form>
+
+  <footer>
+    Created by <span style="font-style: italic; color:#bbb;">Sérgio Isidoro</span>
+  </footer>
+
+  <script>
+    function togglePassword(id) {
+      var x = document.getElementById(id);
+      x.type = (x.type === "password") ? "text" : "password";
+    }
+  </script>
+</body>
+</html>
