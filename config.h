@@ -5,7 +5,7 @@
 #define RESET_BUTTON_PIN D2
 #define BUTTON_GPIO      D0
 #define LED_GPIO         D1
-#define OTA_CHECK_INTERVAL_MS 60000UL
+#define OTA_CHECK_INTERVAL_MS 300000UL
 #define PING_DELAY_AFTER_WOL  60000UL
 
 struct Config {
@@ -30,4 +30,5 @@ extern bool buttonTriggered;
 bool saveConfig(const Config &cfg);
 bool loadConfig();
 void factoryReset();
+
 
