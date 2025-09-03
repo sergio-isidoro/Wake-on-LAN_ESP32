@@ -1,4 +1,4 @@
-# 🔥 Wake-on-LAN ESP32-C3 + MQTT + OTA + Portal Wi-Fi v5.0
+# 🔥 Wake-on-LAN ESP32-C3 + MQTT + OTA + Portal Wi-Fi v5.0 (Not working OTA)
 
 Advanced ESP32-C3 project for sending **Wake-on-LAN (WOL) Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
