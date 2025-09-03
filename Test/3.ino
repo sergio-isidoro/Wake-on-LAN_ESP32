@@ -1,9 +1,10 @@
 /*
- * ESP32-C3 WOL + MQTT + OTA - Versão Completa Interativa
+ * ESP32-C3 WOL + MQTT + OTA - Versão Completa Interativa com Broadcast IP
  * Funcionalidades:
  * - Setup interativo via Serial se /config.json não existir
  * - Reset de fábrica segurando D2 (GPIO2) durante boot
  * - Configuração WiFi/MQTT/OTA/WOL via JSON
+ * - Broadcast IP configurável para WOL
  */
 
 #include <WiFi.h>
@@ -19,7 +20,7 @@
 #include <esp_ota_ops.h>
 
 #define FIRMWARE_VERSION "5.0-interactive"
-#define RESET_BUTTON_PIN 2 // D2 = GPIO2 para reset de fábrica
+#define RESET_BUTTON_PIN D0 // D0 = GPIO0 para reset de fábrica
 
 struct Config {
   char ssid[32];
@@ -36,6 +37,8 @@ struct Config {
   char target_ip[16];
   uint8_t mac_address[6];
   int udp_port;
+  char broadcastIPStr[16]; // para JSON
+  IPAddress broadcastIP;    // convertido do broadcastIPStr
 };
 
 // ===== Variáveis Globais =====
@@ -63,6 +66,7 @@ bool saveConfig(const Config &cfg) {
   doc["ota_check_interval_ms"]=cfg.ota_check_interval_ms;
   doc["button_gpio"]=cfg.button_gpio; doc["led_gpio"]=cfg.led_gpio;
   doc["target_ip"]=cfg.target_ip; doc["udp_port"]=cfg.udp_port;
+  doc["broadcastIP"]=cfg.broadcastIPStr;
   JsonArray mac=doc.createNestedArray("mac_address");
   for(int i=0;i<6;i++) mac.add(cfg.mac_address[i]);
   if(serializeJsonPretty(doc,f)==0){f.close();return false;}
@@ -92,6 +96,8 @@ bool loadConfig() {
   config.button_gpio = doc["button_gpio"];
   config.led_gpio = doc["led_gpio"];
   strlcpy(config.target_ip, doc["target_ip"], sizeof(config.target_ip));
+  strlcpy(config.broadcastIPStr, doc["broadcastIP"], sizeof(config.broadcastIPStr));
+  config.broadcastIP.fromString(config.broadcastIPStr);
   JsonArray mac = doc["mac_address"];
   for(int i=0;i<6;i++) config.mac_address[i] = mac[i];
   config.udp_port = doc["udp_port"];
@@ -123,6 +129,8 @@ void runSerialSetup() {
   String macStr=readLine(); sscanf(macStr.c_str(),"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
     &newCfg.mac_address[0],&newCfg.mac_address[1],&newCfg.mac_address[2],
     &newCfg.mac_address[3],&newCfg.mac_address[4],&newCfg.mac_address[5]);
+  Serial.print("Broadcast IP (ex: 192.168.1.255): "); strlcpy(newCfg.broadcastIPStr, readLine().c_str(), sizeof(newCfg.broadcastIPStr));
+  newCfg.broadcastIP.fromString(newCfg.broadcastIPStr);
 
   // Defaults
   newCfg.ota_check_interval_ms=300000;
@@ -134,7 +142,6 @@ void runSerialSetup() {
 }
 
 // ===== WiFi + MQTT + WOL Helpers =====
-
 void mqttPublish(const char* msg){Serial.println(msg);if(mqtt.connected()) mqtt.publish("wol/log",msg);}
 void setupWiFi(){Serial.print("Conectando WiFi ");Serial.println(config.ssid);WiFi.begin(config.ssid,config.password);unsigned long t=millis();while(WiFi.status()!=WL_CONNECTED){delay(500);Serial.print(".");if(millis()-t>30000){Serial.println("Timeout WiFi");mqttPublish("Timeout WiFi");break;}}if(WiFi.status()==WL_CONNECTED){Serial.println("\nWiFi conectado!");Serial.print("IP: ");Serial.println(WiFi.localIP());}}
 void ensureMqtt(){while(!mqtt.connected()){Serial.print("Conectando MQTT...");if(mqtt.connect("ESP32C3-WOL",config.mqtt_user,config.mqtt_password)){Serial.println("connected");mqttPublish(("Boot v"+String(FIRMWARE_VERSION)).c_str());mqtt.publish("wol/status","Ready",true);mqtt.subscribe("wol/event");}else{Serial.print("falhou rc=");Serial.println(mqtt.state());delay(2000);}}}
@@ -143,8 +150,7 @@ void sendMagicPacketBurst(const char* reason){
   Serial.println("WOL reason:"+String(reason));
   if(mqtt.connected()) mqtt.publish("wol/event",reason);
   uint8_t packet[102]; memset(packet,0xFF,6); for(int i=0;i<16;i++) memcpy(&packet[6+i*6],config.mac_address,6);
-  IPAddress broadcast(255,255,255,255);
-  if(!udp.beginPacket(broadcast,config.udp_port)){mqttPublish("UDP beginPacket failed");return;}
+  if(!udp.beginPacket(config.broadcastIP,config.udp_port)){mqttPublish("UDP beginPacket failed");return;}
   udp.write(packet,sizeof(packet)); udp.endPacket();
   mqttPublish("WOL sent");
 }
