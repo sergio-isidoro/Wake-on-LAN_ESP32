@@ -171,4 +171,6 @@ Or update directly in portal via browser (http://192.168.4.1).
 
 <img width="218" height="24" alt="Captura de tela 2025-09-03 195423" src="https://github.com/user-attachments/assets/c4edd568-4199-45e3-b0d0-dcecbf7f3bd9" />
 
+<img width="600" height="361" alt="Captura de tela 2025-09-03 213951" src="https://github.com/user-attachments/assets/a818f4de-7b05-4c5f-ae86-9de40ca9604e" />
+
 </div>
