@@ -163,14 +163,35 @@ Or update directly in portal via browser (http://192.168.4.1).
 
 <div align="center">
 
-![SHEMATIC](https://github.com/user-attachments/assets/69b907f5-264b-4f98-b777-c53e9436570a)
-
-![PINOUT](https://github.com/user-attachments/assets/5ac26256-06c6-40ae-ab29-bd35d11dfe80)
-
-<img width="1014" height="954" alt="Captura de tela 2025-09-03 201030" src="https://github.com/user-attachments/assets/f758a0f1-685b-4d10-8cdd-0a98d9a8f501" />
-
-<img width="218" height="24" alt="Captura de tela 2025-09-03 195423" src="https://github.com/user-attachments/assets/c4edd568-4199-45e3-b0d0-dcecbf7f3bd9" />
-
-<img width="600" height="361" alt="Captura de tela 2025-09-03 213951" src="https://github.com/user-attachments/assets/a818f4de-7b05-4c5f-ae86-9de40ca9604e" />
+<p>1. Pinout</p>
+<img src="https://github.com/user-attachments/assets/5ac26256-06c6-40ae-ab29-bd35d11dfe80" alt="PINOUT" />
+<br>
+<br>
+<p>2. Schematic</p>
+<img src="https://github.com/user-attachments/assets/69b907f5-264b-4f98-b777-c53e9436570a" alt="SCHEMATIC" />
+<br>
+<br>
+<p>3. Wi-Fi AP</p>
+<img width="230" height="42" src="https://github.com/user-attachments/assets/6a31179c-f777-4ec5-8c40-fe7e1d493d08" alt="Screenshot 075647" />
+<br>
+<br>
+<p>4. Configuration Portal</p>
+<img width="1014" height="954" src="https://github.com/user-attachments/assets/f758a0f1-685b-4d10-8cdd-0a98d9a8f501" alt="Screenshot 201030" />
+<br>
+<br>
+<p>5. Configuration Portal - SAVED!</p>
+<img width="218" height="24" src="https://github.com/user-attachments/assets/c4edd568-4199-45e3-b0d0-dcecbf7f3bd9" alt="Screenshot 195423" />
+<br>
+<br>
+<p>6. Console Hivemq Cloud (can be other)</p>
+<img width="600" height="361" src="https://github.com/user-attachments/assets/a818f4de-7b05-4c5f-ae86-9de40ca9604e" alt="Screenshot 213951" />
+<br>
+<br>
+<p>7. IoT MQTT Panel (can be other)</p>
+<img width="824" height="280" src="https://github.com/user-attachments/assets/1b963f7b-a4e0-46c9-835a-5fe4d8f9a40c" alt="Screenshot 075451" />
+<br>
+<br>
+<p>8. IoT MQTT Panel - Dash (Customizable - send: wol/event - receive: wol/status and wol/log)</p>
+<img width="600" height="800" src="https://github.com/user-attachments/assets/1ad0e9a7-2fc2-4a06-8f62-421ac95fb27d" alt="Screenshot 075451" />
 
 </div>
