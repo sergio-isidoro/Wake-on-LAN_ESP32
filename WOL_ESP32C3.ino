@@ -31,6 +31,7 @@ void setup(){
   setupMQTT();
   udp.begin(config.udp_port);
 
+  mqtt.publish("wol/status", String("WOL ESP32C3 v") + FIRMWARE_VERSION, true);
   blinkVersion(FIRMWARE_VERSION);
   lastOTACheck=millis();
 }
@@ -50,3 +51,4 @@ void loop(){
   server.handleClient();
   delay(10);
 }
+
