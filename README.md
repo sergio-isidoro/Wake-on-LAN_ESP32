@@ -195,3 +195,104 @@ Or update directly in portal via browser (http://192.168.4.1).
 <img width="600" height="800" src="https://github.com/user-attachments/assets/1ad0e9a7-2fc2-4a06-8f62-421ac95fb27d" alt="Screenshot 075451" />
 
 </div>
+
+## 🚀 OTA Update - Detailed MQTT Output (Example)
+
+The OTA implementation performs:
+
+- 🔍 Checks for a new firmware version
+- 💾 Downloads firmware to SPIFFS (to allow resuming)
+- ✅ Verifies SHA256 checksum
+- ⚡ Safely writes to the OTA partition
+- 📡 Provides detailed MQTT logs
+
+---
+
+### **1. Firmware already up-to-date ✅**
+
+- 🔍 OTA: Checking for updates...
+- 🌐 OTA: Remote version found: 1.02
+- ✅ OTA: Firmware is already up to date.
+
+---
+
+### **2. New firmware available, full download without interruption ⬇️**
+
+- 🔍 OTA: Checking for updates...
+- 🌐 OTA: Remote version found: 1.03
+- ⚡ OTA: New version available: 1.03
+- 💾 OTA: Downloading firmware...
+- ⏳ OTA: Download progress 1%
+- ⏳ OTA: Download progress 5%
+- ⏳ OTA: Download progress 10%
+- ...
+- ⏳ OTA: Download progress 100%
+- ✅ OTA: Firmware downloaded successfully.
+- 🔒 OTA: SHA256 verified successfully.
+- ⚡ OTA: Writing to flash 1%
+- ⚡ OTA: Writing to flash 5%
+- ⚡ OTA: Writing to flash 10%
+- ...
+- ⚡ OTA: Writing to flash 100%
+- 🎉 OTA: Update applied successfully! Restarting...
+
+---
+
+### **3. Download interrupted and resumed 🔄**
+
+- 🔍 OTA: Checking for updates...
+- 🌐 OTA: Remote version found: 1.03
+- ⚡ OTA: New version available: 1.03
+- 💾 OTA: Found partial file in SPIFFS (size 512000 bytes). Resuming download...
+- ⏳ OTA: Download progress 40%
+- ⏳ OTA: Download progress 41%
+- ⏳ OTA: Download progress 42%
+- ...
+- ⚠️ OTA: Network error! Download interrupted.
+- 🔄 OTA: Retrying download, resuming from 42%...
+- ⏳ OTA: Download progress 43%
+- ⏳ OTA: Download progress 44%
+- ...
+- ⏳ OTA: Download progress 100%
+- ✅ OTA: Firmware downloaded successfully.
+- 🔒 OTA: SHA256 verified successfully.
+- ⚡ OTA: Writing to flash 1%
+- ...
+- ⚡ OTA: Writing to flash 100%
+- 🎉 OTA: Update applied successfully! Restarting...
+
+---
+
+### **4. Possible errors ❌**
+
+#### 4.1 Failed to fetch remote version 🌐
+
+- 🔍 OTA: Checking for updates...
+- ❌ OTA: Failed to get version (attempt 1), HTTP code: 404
+- ❌ OTA: Failed to get version (attempt 2), HTTP code: 404
+- ⚠️ OTA: Could not get remote version. Aborting.
+
+#### 4.2 Download with invalid content length 📏
+
+- 💾 OTA: Downloading firmware...
+- ❌ OTA: Invalid content length.
+- 🔄 OTA: Retrying download...
+
+#### 4.3 Error writing to OTA partition ⚡
+
+- ⚡ OTA: Writing to flash...
+- ❌ OTA: esp_ota_write failed.
+- 🔄 OTA: Retrying update...
+
+#### 4.4 SHA256 mismatch 🔒
+
+- ✅ OTA: Firmware downloaded successfully.
+- ❌ OTA: SHA256 mismatch! Update aborted.
+
+---
+
+### **Summary 📝**
+
+- ✅ **Success:** Firmware updated, ESP restarts automatically.
+- 🔄 **Resume:** Interrupted downloads resume from where they stopped via SPIFFS.
+- ❌ **Errors:** Detailed on MQTT, multiple retry attempts before aborting.
