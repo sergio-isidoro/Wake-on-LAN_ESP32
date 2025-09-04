@@ -1,5 +1,4 @@
 #pragma once
-#include "config.h"
+#include <Arduino.h>
 
-bool isUpdateAvailable(String &remoteVersionOut);
 void performOTA();
