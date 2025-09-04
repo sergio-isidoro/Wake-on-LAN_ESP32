@@ -218,6 +218,9 @@ Or update directly in portal via browser (http://192.168.4.1).
 
 </div>
 
+---
+---
+
 ## 🚀 OTA Update - Detailed MQTT Output (Example)
 
 The OTA implementation performs:
