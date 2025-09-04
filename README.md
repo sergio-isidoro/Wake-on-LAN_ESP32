@@ -169,36 +169,6 @@ Or update directly in portal via browser (http://192.168.4.1).
 
 ---
 
-## 🧪 Detailed Behavior
-
-### Boot
-- Checks `config.json`.  
-- If missing, starts Wi-Fi AP and configuration portal.  
-- Otherwise, connects to Wi-Fi and MQTT.  
-- Publishes boot log and status.
-
-### Button Press (D0)
-- Sends WOL packet.  
-- LED flashes.  
-- Schedules ping 1 min later.
-
-### MQTT Commands
-- `"TurnOn"` → WOL  
-- `"PingPC"` → Ping target, update status
-
-### OTA Updates
-- Fetches `version.txt` from GitHub.  
-- Downloads `.bin` if version differs.  
-- Writes to OTA partition.  
-- Publishes progress to MQTT.  
-- Reboots after update.
-
-### Factory Reset
-- D2 LOW at boot deletes `config.json`.  
-- Reboot triggers Wi-Fi portal.
-
----
-
 ## 💡 Notes
 
 - **Debounce**: Button press requires >1 second to trigger WOL.  
