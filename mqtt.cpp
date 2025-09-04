@@ -2,7 +2,6 @@
 #include "config.h"
 #include "wol_ping.h"
 
-
 WiFiClientSecure espClient;
 PubSubClient mqtt(espClient);
 
@@ -19,7 +18,7 @@ void ensureMqtt() {
     Serial.print("Connecting MQTT...");
     if(mqtt.connect("ESP32C3-WOL", config.mqtt_user, config.mqtt_password)){
       Serial.println("Connected!");
-      mqtt.publish("wol/status","Ready",true);
+      mqtt.publish("wol/status","MQTT Ready",true);
       mqtt.subscribe("wol/event");
     } else delay(2000);
   }
@@ -32,3 +31,4 @@ void mqttCallback(char* topic, byte* payload, unsigned int len) {
   if(msg=="TurnOn") sendWOL("MQTT");
   else if(msg=="PingPC") doPing();
 }
+
