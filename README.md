@@ -65,10 +65,16 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 
 ### 3️⃣ OTA Updates
 - Checks every 5 minutes for new firmware (`version.txt`) on GitHub.
-- Downloads and flashes firmware via OTA if a newer version is available.
-- Reports progress every 10% via MQTT.
+- Downloads firmware to SPIFFS (supports resuming if interrupted).
+- Flashes firmware via OTA to ESP32 partition.
+- Reports detailed progress via MQTT:
+  - Download progress
+  - SHA256 verification
+  - Flash writing
+  - Update success or errors
+- Interrupted downloads resume automatically from where they stopped.
 - Device restarts automatically after successful OTA.
-
+  
 ### 4️⃣ Factory Reset
 - Hold GPIO2 (D2) LOW at boot to delete `config.json`.
 - Triggers a restart for initial configuration.
