@@ -2,117 +2,230 @@
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
 #include <esp_ota_ops.h>
+#include <SPIFFS.h>
+#include "ota.h"
 #include "mqtt.h"
-#include "config.h"
 #include "helpers.h"
+#include "config.h"
 
 const char* versionURL  = "https://raw.githubusercontent.com/sergio-isidoro/Wake-on-LAN_ESP32C3/main/firmware/version.txt";
 const char* firmwareURL = "https://raw.githubusercontent.com/sergio-isidoro/Wake-on-LAN_ESP32C3/main/firmware/WOL_ESP32C3.bin";
+const char* shaURL      = "https://raw.githubusercontent.com/sergio-isidoro/Wake-on-LAN_ESP32C3/main/firmware/WOL_ESP32C3.bin.sha256";
+
+#define MAX_OTA_RETRIES 3
+#define OTA_FILE_PATH "/firmware.bin"
+#define SHA_FILE_PATH "/firmware.sha256"
 
 void performOTA() {
-    mqttPublish("Checking OTA update...");
+    mqttPublish("OTA: Checking for updates...");
 
-    // Buscar versão remota
-    String remoteVer = "";
-    WiFiClientSecure clientVer;
-    clientVer.setInsecure();
-    HTTPClient httpVer;
-    httpVer.begin(clientVer, versionURL);
-    int code = httpVer.GET();
-    if (code == 200) {
-        remoteVer = httpVer.getString();
-        remoteVer.trim();
-    } else {
-        mqttPublish(("Failed to fetch version.txt, HTTP code: " + String(code)).c_str());
-        httpVer.end();
+    if (!SPIFFS.begin(true)) {
+        mqttPublish("OTA: SPIFFS mount failed.");
         return;
     }
-    httpVer.end();
+
+    // -----------------------
+    // 1️⃣ Get remote version
+    // -----------------------
+    String remoteVer;
+    bool versionFetched = false;
+
+    for (int attempt = 1; attempt <= MAX_OTA_RETRIES; attempt++) {
+        WiFiClientSecure clientVer;
+        clientVer.setInsecure();
+        HTTPClient httpVer;
+        httpVer.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+        if (httpVer.begin(clientVer, versionURL)) {
+            int code = httpVer.GET();
+            if (code == HTTP_CODE_OK) {
+                remoteVer = httpVer.getString();
+                remoteVer.trim();
+                mqttPublish(("OTA: Remote version found: " + remoteVer).c_str());
+                versionFetched = true;
+                httpVer.end();
+                break;
+            } else {
+                mqttPublish(("OTA: Failed to get version (attempt " + String(attempt) + "), HTTP code: " + String(code)).c_str());
+            }
+            httpVer.end();
+        } else {
+            mqttPublish("OTA: Failed to start HTTP for version check.");
+        }
+        delay(1000);
+    }
+
+    if (!versionFetched) {
+        mqttPublish("OTA: Could not get remote version. Aborting.");
+        return;
+    }
 
     if (remoteVer == FIRMWARE_VERSION) {
-        mqttPublish("No OTA update needed.");
+        mqttPublish("OTA: Firmware is already up to date.");
         return;
     }
 
-    mqttPublish(("OTA: new version " + remoteVer).c_str());
+    mqttPublish(("OTA: New version " + remoteVer + " available. Preparing download...").c_str());
 
-    // Iniciar download do firmware
-    WiFiClientSecure client;
-    client.setInsecure();
-    HTTPClient http;
-    http.begin(client, firmwareURL);
-    int httpCode = http.GET();
-    if (httpCode != 200) {
-        mqttPublish(("Failed to download firmware, HTTP code: " + String(httpCode)).c_str());
+    // -----------------------
+    // 2️⃣ Download firmware to SPIFFS
+    // -----------------------
+    for (int attempt = 1; attempt <= MAX_OTA_RETRIES; attempt++) {
+        // Remove incomplete files
+        if (SPIFFS.exists(OTA_FILE_PATH)) SPIFFS.remove(OTA_FILE_PATH);
+        if (SPIFFS.exists(SHA_FILE_PATH)) SPIFFS.remove(SHA_FILE_PATH);
+
+        WiFiClientSecure client;
+        client.setInsecure();
+        HTTPClient http;
+        http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+        http.begin(client, firmwareURL);
+        http.setTimeout(15000);
+
+        int httpCode = http.GET();
+        if (httpCode != HTTP_CODE_OK) {
+            mqttPublish(("OTA: Download failed (attempt " + String(attempt) + "), HTTP code: " + String(httpCode)).c_str());
+            http.end();
+            delay(2000);
+            continue;
+        }
+
+        int contentLength = http.getSize();
+        if (contentLength <= 0) {
+            mqttPublish("OTA: Invalid content length.");
+            http.end();
+            delay(2000);
+            continue;
+        }
+
+        mqttPublish(("OTA: Firmware size: " + String(contentLength) + " bytes").c_str());
+
+        File fwFile = SPIFFS.open(OTA_FILE_PATH, FILE_WRITE);
+        if (!fwFile) {
+            mqttPublish("OTA: Failed to open SPIFFS file for writing.");
+            http.end();
+            return;
+        }
+
+        auto* stream = http.getStreamPtr();
+        uint8_t buf[1024];
+        size_t totalWritten = 0;
+        int lastPercent = -1;
+
+        while (totalWritten < contentLength) {
+            int len = stream->read(buf, sizeof(buf));
+            if (len < 0) break;
+            if (len == 0) { delay(1); continue; }
+
+            fwFile.write(buf, len);
+            totalWritten += len;
+
+            int percent = (totalWritten * 100) / contentLength;
+            if (percent > lastPercent) {
+                lastPercent = percent;
+                mqttPublish(("OTA: Download progress: " + String(percent) + "%").c_str());
+            }
+            delay(1);
+        }
+        fwFile.close();
         http.end();
+
+        if (totalWritten != contentLength) {
+            mqttPublish(("OTA: Incomplete download. Retrying...").c_str());
+            delay(2000);
+            continue;
+        }
+
+        mqttPublish("OTA: Firmware downloaded successfully.");
+        break; // Download successful
+    }
+
+    // -----------------------
+    // 3️⃣ Download SHA256
+    // -----------------------
+    WiFiClientSecure clientSha;
+    clientSha.setInsecure();
+    HTTPClient httpSha;
+    httpSha.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
+    httpSha.begin(clientSha, shaURL);
+    int codeSha = httpSha.GET();
+    if (codeSha != HTTP_CODE_OK) {
+        mqttPublish(("OTA: Failed to download SHA256, HTTP code: " + String(codeSha)).c_str());
+        httpSha.end();
         return;
     }
 
-    int contentLen = http.getSize();
-    if (contentLen <= 0) {
-        mqttPublish("Invalid content length for OTA");
-        http.end();
+    String shaRemote = httpSha.getString();
+    shaRemote.trim();
+    httpSha.end();
+    mqttPublish(("OTA: SHA256 downloaded: " + shaRemote).c_str());
+
+    // -----------------------
+    // 4️⃣ Verify SHA256
+    // -----------------------
+    String shaLocal = calculateSHA256(OTA_FILE_PATH); // helper
+    if (shaLocal != shaRemote) {
+        mqttPublish("OTA: SHA256 mismatch! Aborting.");
         return;
     }
-    mqttPublish(("OTA size: " + String(contentLen) + " bytes").c_str());
+    mqttPublish("OTA: SHA256 verified.");
 
+    // -----------------------
+    // 5️⃣ Apply OTA
+    // -----------------------
     const esp_partition_t* update_partition = esp_ota_get_next_update_partition(NULL);
     if (!update_partition) {
-        mqttPublish("Failed to get OTA partition");
-        http.end();
+        mqttPublish("OTA: OTA partition not found.");
         return;
     }
 
-    if (contentLen > update_partition->size) {
-        mqttPublish("Firmware too large for OTA partition!");
-        http.end();
+    File fwFile = SPIFFS.open(OTA_FILE_PATH, FILE_READ);
+    if (!fwFile) {
+        mqttPublish("OTA: Failed to open firmware file for OTA.");
         return;
     }
 
-    auto* stream = http.getStreamPtr();
     esp_ota_handle_t ota_handle;
     if (esp_ota_begin(update_partition, OTA_SIZE_UNKNOWN, &ota_handle) != ESP_OK) {
-        mqttPublish("esp_ota_begin failed");
-        http.end();
+        mqttPublish("OTA: esp_ota_begin failed.");
+        fwFile.close();
         return;
     }
 
     uint8_t buf[1024];
-    int len;
     size_t totalWritten = 0;
-    int lastPercent = 0;
+    int lastPercent = -1;
 
-    while ((len = stream->read(buf, sizeof(buf))) > 0) {
+    while (fwFile.available()) {
+        int len = fwFile.read(buf, sizeof(buf));
         if (esp_ota_write(ota_handle, buf, len) != ESP_OK) {
-            mqttPublish("esp_ota_write failed");
-            esp_ota_end(ota_handle);
-            http.end();
+            mqttPublish("OTA: esp_ota_write failed.");
+            esp_ota_abort(ota_handle);
+            fwFile.close();
             return;
         }
-        totalWritten += len;
 
-        int percent = (int)((totalWritten * 100) / contentLen);
-        if (percent / 10 > lastPercent / 10) {
+        totalWritten += len;
+        int percent = (totalWritten * 100) / fwFile.size();
+        if (percent > lastPercent) {
             lastPercent = percent;
-            mqttPublish(("OTA progress: " + String((percent / 10) * 10) + "%").c_str());
+            mqttPublish(("OTA: Write progress: " + String(percent) + "%").c_str());
         }
+        delay(1);
     }
 
-    esp_err_t err = esp_ota_end(ota_handle);
-    if (err != ESP_OK) {
-        mqttPublish(("esp_ota_end failed: " + String(err)).c_str());
-        http.end();
+    fwFile.close();
+
+    if (esp_ota_end(ota_handle) != ESP_OK) {
+        mqttPublish("OTA: esp_ota_end failed.");
         return;
     }
 
     if (esp_ota_set_boot_partition(update_partition) != ESP_OK) {
-        mqttPublish("Failed to set boot partition");
-        http.end();
+        mqttPublish("OTA: Failed to set boot partition.");
         return;
     }
 
-    mqttPublish("OTA update finished, restarting...");
-    http.end();
-    delay(1000);
+    mqttPublish("OTA: Update finished successfully! Restarting...");
+    delay(2000);
     ESP.restart();
 }
