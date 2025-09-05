@@ -1,8 +1,8 @@
-# 🔥 Wake-on-LAN ESP32-C3 + MQTT + OTA + Portal Wi-Fi v5.2
+# 🔥 Wake-on-LAN ESP32-C3 + MQTT + OTA + Portal (Wi-Fi) v5.2
 
 Advanced ESP32-C3 project for sending **Wake-on-LAN (WOL) Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
-This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, and optional factory reset.
+This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, optional factory reset, and the ability to **wake up the PC and check its ping from anywhere in the world via MQTT**.
 
 ---
 
@@ -10,13 +10,13 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 
 - 🌐 **Wi-Fi Integration**: Connects to your local Wi-Fi network.
 - 🖥️ **Wake-on-LAN (WOL)**: Sends magic packets to wake compatible PCs.
-- 🔘 **User Button**: GPIO0 (D0) button sends WOL on >1s press.
+- 🔘 **User Button**: D0 button sends WOL on >1s press.
 - ☁️ **MQTT Support**: Subscribes to `wol/event` for `"TurnOn"` or `"PingPC"` commands and publishes logs/status to `wol/log` and `wol/status`.
 - 🔄 **Automatic Ping After WOL**: Schedules a ping 2 minutes after sending WOL (non-blocking).
 - 🕵️ **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target device is online.
-- 🔆 **LED Indicator**: GPIO1 (D1) flashes to indicate WOL, ping, or OTA progress.
+- 🔆 **LED Indicator**: D1 LED flashes to indicate WOL, ping, or OTA progress.
 - 💾 **OTA Updates**: Checks for firmware every hour; publishes progress to MQTT every 10%.
-- 🛠️ **Factory Reset**: Holding GPIO2 (D2) LOW at boot deletes `config.json`.
+- 🛠️ **Factory Reset**: Holding D2 button LOW at boot deletes `config.json`.
 - 📄 **Configuration Portal**: Hosts HTML page on SPIFFS to configure Wi-Fi, MQTT, target IP/MAC, and UDP port.
 
 ---
@@ -76,7 +76,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 ## ⚡ Operation Modes
 
 ### 1️⃣ Button-triggered WOL
-- Press GPIO0 (>1s) to send WOL magic packet.
+- Press Button D0 (>1s) to send WOL magic packet.
 - LED flashes during WOL.
 - Schedules a ping 2 minutes later to check if PC is online.
 
@@ -85,7 +85,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 - `"PingPC"`: Pings the target and publishes online/offline status.
 
 ### 3️⃣ OTA Updates
-- Checks every **1 hour** for new firmware (`version.txt`) on GitHub.
+- Checks every **1 hour** or Press Button D2 (only after boot) for new firmware (`version.txt`) on GitHub.
 - Downloads and flashes firmware directly to OTA partition.
 - Publishes progress via MQTT every 10%.
 - Reports:
@@ -95,11 +95,12 @@ Before starting, ensure you have all the tools and libraries correctly installed
 - Device restarts automatically after OTA.
 
 ### 4️⃣ Factory Reset
-- Hold GPIO2 (D2) LOW at boot to delete `config.json`.
+- Hold Button D2 LOW at boot to delete `config.json`.
 - Device restarts and launches the configuration portal if no config exists.
 
 ### 5️⃣ Configuration Portal
-- Hotspot: `ESP32C3_Config` if no config file.
+- LED stay **fixed ON**
+- Hotspot: `WOL_ESP32C3_Config` if no config file.
 - HTML page allows:
   - Wi-Fi SSID & password
   - MQTT server, port, user, password
@@ -162,35 +163,35 @@ Or update by ESP32DATA `config.json`:
 
 <div align="center">
 
-<p>1. Pinout</p>
-<img src="https://github.com/user-attachments/assets/5ac26256-06c6-40ae-ab29-bd35d11dfe80" alt="PINOUT" />
+### Pinout
+<div align="center"><img src="https://github.com/user-attachments/assets/5ac26256-06c6-40ae-ab29-bd35d11dfe80" alt="PINOUT" /></div>
 <br>
-<br>
-<p>2. Schematic</p>
-<img src="https://github.com/user-attachments/assets/69b907f5-264b-4f98-b777-c53e9436570a" alt="SCHEMATIC" />
-<br>
-<br>
-<p>3. Wi-Fi AP</p>
-<img width="230" height="42" src="https://github.com/user-attachments/assets/6a31179c-f777-4ec5-8c40-fe7e1d493d08" alt="Screenshot 075647" />
-<br>
-<br>
-<p>4. Configuration Portal</p>
-<img width="1014" height="954" src="https://github.com/user-attachments/assets/f758a0f1-685b-4d10-8cdd-0a98d9a8f501" alt="Screenshot 201030" />
-<br>
-<br>
-<p>5. Configuration Portal - SAVED!</p>
-<img width="218" height="24" src="https://github.com/user-attachments/assets/c4edd568-4199-45e3-b0d0-dcecbf7f3bd9" alt="Screenshot 195423" />
-<br>
-<br>
-<p>6. Console Hivemq Cloud (can be other)</p>
-<img width="600" height="361" src="https://github.com/user-attachments/assets/a818f4de-7b05-4c5f-ae86-9de40ca9604e" alt="Screenshot 213951" />
-<br>
-<br>
-<p>7. IoT MQTT Panel (can be other)</p>
-<img width="824" height="280" src="https://github.com/user-attachments/assets/1b963f7b-a4e0-46c9-835a-5fe4d8f9a40c" alt="Screenshot 075451" />
-<br>
-<br>
-<p>8. IoT MQTT Panel - Dash (Customizable - send: wol/event - receive: wol/status and wol/log)</p>
-<img width="600" height="800" src="https://github.com/user-attachments/assets/1ad0e9a7-2fc2-4a06-8f62-421ac95fb27d" alt="Screenshot 075451" />
 
-</div>
+### Schematic
+<div align="center"><img src="https://github.com/user-attachments/assets/69b907f5-264b-4f98-b777-c53e9436570a" alt="SCHEMATIC" /></div>
+<br>
+
+### Wi-Fi AP
+<div align="center"><img width="230" height="42" src="https://github.com/user-attachments/assets/6a31179c-f777-4ec5-8c40-fe7e1d493d08" alt="Wi-Fi AP" /></div>
+<br>
+
+### Configuration Portal
+<div align="center"><img width="1014" height="954" src="https://github.com/user-attachments/assets/f758a0f1-685b-4d10-8cdd-0a98d9a8f501" alt="Configuration Portal" /></div>
+<br>
+
+### Configuration Portal - SAVED!
+<div align="center"><img width="218" height="24" src="https://github.com/user-attachments/assets/c4edd568-4199-45e3-b0d0-dcecbf7f3bd9" alt="Portal Saved" /></div>
+<br>
+
+### Console HiveMQ Cloud (can be other)
+<div align="center"><img width="600" height="361" src="https://github.com/user-attachments/assets/a818f4de-7b05-4c5f-ae86-9de40ca9604e" alt="HiveMQ Console" /></div>
+<br>
+
+### IoT MQTT Panel (can be other)
+<div align="center"><img width="824" height="280" src="https://github.com/user-attachments/assets/1b963f7b-a4e0-46c9-835a-5fe4d8f9a40c" alt="IoT MQTT Panel" /></div>
+<br>
+
+### IoT MQTT Panel - Dash (Customizable - send: wol/event - receive: wol/status and wol/log)
+<div align="center"><img width="600" height="700" src="https://github.com/user-attachments/assets/f32d1d7c-8b13-4af3-9301-70eb47db01dc" alt="IoT MQTT Dashboard" /></div>
+<br>
+
