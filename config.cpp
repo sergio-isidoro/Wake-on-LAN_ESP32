@@ -49,7 +49,7 @@ bool loadConfig() {
     strlcpy(config.ssid, doc["ssid"] | "", sizeof(config.ssid));
     strlcpy(config.password, doc["password"] | "", sizeof(config.password));
     strlcpy(config.mqtt_server, doc["mqtt_server"] | "", sizeof(config.mqtt_server));
-    config.mqtt_port = doc["mqtt_port"] | 1883;
+    config.mqtt_port = doc["mqtt_port"] | 8883;
     strlcpy(config.mqtt_user, doc["mqtt_user"] | "", sizeof(config.mqtt_user));
     strlcpy(config.mqtt_password, doc["mqtt_password"] | "", sizeof(config.mqtt_password));
     strlcpy(config.target_ip, doc["target_ip"] | "", sizeof(config.target_ip));

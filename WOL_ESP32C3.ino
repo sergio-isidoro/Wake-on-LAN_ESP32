@@ -13,17 +13,21 @@
 #include "ota.h"
 #include "configPortal.h"
 
+bool FirstBoot = true;
+
 void setup(){
   Serial.begin(115200);
-  pinMode(RESET_BUTTON_PIN,INPUT_PULLUP);
+  pinMode(RESET_OTA_BUTTON_PIN,INPUT_PULLUP);
   pinMode(BUTTON_GPIO,INPUT_PULLUP);
   pinMode(LED_GPIO,OUTPUT); digitalWrite(LED_GPIO,HIGH);
 
-  if(digitalRead(RESET_BUTTON_PIN)==LOW) factoryReset();
+  if(digitalRead(RESET_OTA_BUTTON_PIN)==LOW) factoryReset();
 
   if(!loadConfig()){
     startConfigPortal();
-    while(true){ server.handleClient(); delay(10); }
+    while(true){ 
+      server.handleClient(); delay(10);
+    }
   }
   digitalWrite(LED_GPIO,LOW);
 
@@ -31,24 +35,28 @@ void setup(){
   setupMQTT();
   udp.begin(config.udp_port);
 
-  mqtt.publish("wol/status", String("WOL ESP32C3 v") + FIRMWARE_VERSION, true);
   blinkVersion(FIRMWARE_VERSION);
-  lastOTACheck=millis();
+  lastOTACheck = millis();
 }
 
 void loop(){
   if(!mqttConnected()) ensureMqtt();
   mqttLoop();
 
+  if(FirstBoot){
+    mqttPublish(("----> WOL ESP32C3 v" + String(FIRMWARE_VERSION)).c_str());
+    mqtt.publish("wol/event", "", true);
+    FirstBoot = false;
+  }
+
   handleButton();
   handleScheduledPing();
 
-  if(millis()-lastOTACheck>OTA_CHECK_INTERVAL_MS){
+  if(millis()-lastOTACheck>OTA_CHECK_INTERVAL_MS || digitalRead(RESET_OTA_BUTTON_PIN) == LOW){
     lastOTACheck=millis();
     performOTA();
   }
 
   server.handleClient();
-  delay(10);
+  delay(1);
 }
-

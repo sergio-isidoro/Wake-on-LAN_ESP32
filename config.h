@@ -1,12 +1,12 @@
 #pragma once
 #include <Arduino.h>
 
-#define FIRMWARE_VERSION "5.0"
-#define RESET_BUTTON_PIN D2
+#define FIRMWARE_VERSION "5.2"
+#define RESET_OTA_BUTTON_PIN D2
 #define BUTTON_GPIO      D0
 #define LED_GPIO         D1
-#define OTA_CHECK_INTERVAL_MS 300000UL
-#define PING_DELAY_AFTER_WOL  60000UL
+#define OTA_CHECK_INTERVAL_MS 3600000UL   // 1h
+#define PING_DELAY_AFTER_WOL  120000UL    // 2min
 
 struct Config {
   char ssid[32];
@@ -30,5 +30,3 @@ extern bool buttonTriggered;
 bool saveConfig(const Config &cfg);
 bool loadConfig();
 void factoryReset();
-
-

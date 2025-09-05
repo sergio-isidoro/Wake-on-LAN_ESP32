@@ -19,8 +19,8 @@ void sendWOL(const char* reason){
 void doPing(){
   IPAddress target; target.fromString(config.target_ip);
   bool ok = Ping.ping(target,3);
-  if(ok) mqttPublish("Ping OK: PC online");
-  else   mqttPublish("Ping FAIL: PC offline");
+  if(ok) mqttPublish("Ping: PC online");
+  else   mqttPublish("Ping: PC offline");
 }
 
 void handleButton(){

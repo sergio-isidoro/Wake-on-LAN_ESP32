@@ -6,15 +6,26 @@
 WebServer server(80);
 
 void handleRoot(){
-  if(!SPIFFS.begin(true)){ server.send(500,"text/plain","SPIFFS error"); return; }
+  if(!SPIFFS.begin(true)){ 
+    server.send(500,"text/plain","SPIFFS error");
+    return;
+  }
+  
   File f = SPIFFS.open("/setup.html","r");
-  if(!f){ server.send(404,"text/plain","File not found"); return; }
+  
+  if(!f){ 
+    server.send(404,"text/plain","File not found");
+    return;
+  }
+  
   server.streamFile(f,"text/html");
   f.close();
 }
 
 void handleSave(){
-  if(!SPIFFS.begin(true)){ server.send(500,"text/plain","SPIFFS error"); return; }
+  if(!SPIFFS.begin(true)){ 
+    server.send(500,"text/plain","SPIFFS error"); return;
+  }
 
   Config newCfg;
 
@@ -36,8 +47,11 @@ void handleSave(){
 
   if(saveConfig(newCfg)){
     server.send(200,"text/html","<h3>Config saved! Rebooting...</h3>");
-    delay(2000); ESP.restart();
-  } else server.send(500,"text/html","<h3>Error saving config!</h3>");
+    delay(2000); 
+    ESP.restart();
+  } else {
+    server.send(500,"text/html","<h3>Error saving config!</h3>");
+  }
 }
 
 void startConfigPortal(){
