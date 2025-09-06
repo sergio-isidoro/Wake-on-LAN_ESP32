@@ -1,5 +1,5 @@
 /*
- * ESP32-C3 WOL + MQTT + JSON + SETUP + HOTSTOP + OTA (with GitHub)
+ * ESP32-C3 WOL + MQTT + JSON + PORTAL + WiFi AP + OTA (with GitHub)
  * ESP32C3 Dev Module (Seeed Studio)
  * ---------------------------------------
  */
@@ -17,21 +17,23 @@ bool FirstBoot = true;
 
 void setup(){
   Serial.begin(115200);
-  pinMode(RESET_OTA_BUTTON_PIN,INPUT_PULLUP);
-  pinMode(BUTTON_GPIO,INPUT_PULLUP);
-  pinMode(PIN1_GPIO,OUTPUT); digitalWrite(PIN1_GPIO,LOW);
-  pinMode(PIN2_GPIO,OUTPUT); digitalWrite(PIN2_GPIO,LOW);
-  pinMode(LED_GPIO,OUTPUT); digitalWrite(LED_GPIO,HIGH);
+  
+  pinMode(RESET_OTA_BUTTON_PIN, INPUT_PULLUP);
+  pinMode(BUTTON_GPIO, INPUT_PULLUP);
+  pinMode(PIN1_GPIO, OUTPUT); digitalWrite(PIN1_GPIO, LOW);
+  pinMode(PIN2_GPIO, OUTPUT); digitalWrite(PIN2_GPIO, LOW);
+  pinMode(LED_GPIO, OUTPUT); digitalWrite(LED_GPIO, HIGH);
 
-  if(digitalRead(RESET_OTA_BUTTON_PIN)==LOW) factoryReset();
+  if(digitalRead(RESET_OTA_BUTTON_PIN) == LOW) factoryReset();
 
   if(!loadConfig()){
     startConfigPortal();
     while(true){ 
-      server.handleClient(); delay(10);
+      server.handleClient(); 
+      delay(10);
     }
   }
-  digitalWrite(LED_GPIO,LOW);
+  digitalWrite(LED_GPIO, LOW);
 
   setupWiFi();
   setupMQTT();
@@ -54,7 +56,7 @@ void loop(){
   handleButton();
   handleScheduledPing();
 
-  if(millis()-lastOTACheck>OTA_CHECK_INTERVAL_MS || digitalRead(RESET_OTA_BUTTON_PIN) == LOW){
+  if(millis() - lastOTACheck > OTA_CHECK_INTERVAL_MS || digitalRead(RESET_OTA_BUTTON_PIN) == LOW){
     lastOTACheck=millis();
     performOTA();
   }

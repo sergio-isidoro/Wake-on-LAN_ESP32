@@ -24,7 +24,8 @@ void handleRoot(){
 
 void handleSave(){
   if(!SPIFFS.begin(true)){ 
-    server.send(500,"text/plain","SPIFFS error"); return;
+    server.send(500,"text/plain","SPIFFS error");
+    return;
   }
 
   Config newCfg;
