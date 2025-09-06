@@ -1,4 +1,4 @@
-# 🔥 Wake-on-LAN ESP32-C3 + MQTT + OTA + Portal (Wi-Fi) v5.3
+# 🔥 Wake-on-LAN ESP32 + MQTT + OTA + Portal (Wi-Fi) v5.3
 
 Advanced ESP32-C3 project for sending **Wake-on-LAN (WOL) Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
@@ -20,6 +20,16 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 - 💾 **OTA Updates**: Checks for firmware every hour; publishes progress to MQTT every 10%.
 - 🛠️ **Factory Reset**: Holding D2 button LOW at boot deletes `config.json`.
 - 📄 **Configuration Portal**: Hosts HTML page on SPIFFS to configure Wi-Fi, MQTT, target IP/MAC, and UDP port.
+
+---
+
+## ✅ The code is compatible with:
+
+- **ESP32-C3** (e.g., Seeed Studio XIAO ESP32-C3, DevKitM-1, Lolin C3 Mini) **[Tested]**
+- **ESP32-S3** (DevKit, Seeed Studio XIAO S3, AiThinker modules, etc.)
+- **ESP32 original** (ESP32-WROOM-32, ESP32-WROVER, DevKit V1)
+- **ESP32-S2** (DevKit, XIAO ESP32-S2, etc.)
+- **ESP32-PICO-D4** (with 4 MB flash)
 
 ---
 

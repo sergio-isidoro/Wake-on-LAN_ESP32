@@ -41,7 +41,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int len) {
 
   if(msg == "TurnOn"){
     blinkDigit(2);
-    sendWOL("MQTT");
+    sendWOL("MQTT", 10);
 
   } else if(msg == "TurnOff"){
     blinkDigit(2);

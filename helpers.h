@@ -5,5 +5,5 @@
 extern WiFiUDP udp;
 
 void mqttPublish(const char* msg);
-void blinkDigit(int n, int t);
+void blinkDigit(int n);
 void blinkVersion(const char* version);

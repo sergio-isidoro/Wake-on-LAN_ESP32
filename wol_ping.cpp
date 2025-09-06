@@ -39,7 +39,7 @@ void handleButton(){
     }
     else if(millis() - t0 > 1000){ 
       blinkDigit(1);
-      sendWOL("Button",10); 
+      sendWOL("Button", 10); 
       buttonTriggered = false;
     }
   } else buttonTriggered = false;
