@@ -9,11 +9,11 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 ## 📋 Features
 
 - 🌐 **Wi-Fi Integration**: Connects to your local Wi-Fi network.
-- 🖥️ **Wake-on-LAN (WOL)**: Sends magic packets to wake compatible PCs.
+- 🖥️ **Wake-on-LAN (WOL)**: Sends **n** magic packets to wake compatible PCs **(n = 10)**.
 - 🔘 **User Button WOL**: D0 button sends WOL on >1s press.
 - 🔘 **User command PinOut 1**: D4 output LOW or HIGH (Default LOW).
 - 🔘 **User command PinOut 2**: D5 output LOW or HIGH (Default LOW).
-- ☁️ **MQTT Support**: Subscribes to `wol/event` for `"TurnOn"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands and publishes logs/status to `wol/log` and `wol/status`.
+- ☁️ **MQTT Support**: Subscribes to `wol/event` for `"TurnOn"`, `"CheckUpdate"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands and publishes logs/status to `wol/log` and `wol/status`.
 - 🔄 **Automatic Ping After WOL**: Schedules a ping 2 minutes after sending WOL (non-blocking).
 - 🕵️ **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target device is online.
 - 🔆 **LED Indicator**: D1 LED flashes to indicate WOL, ping, or OTA progress.
@@ -83,7 +83,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 
 | Topic        | Purpose                                         |
 |-------------|-------------------------------------------------|
-| `wol/event` | Subscribe to `"TurnOn"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands |
+| `wol/event` | Subscribe to `"TurnOn"`, `"CheckUpdate"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands |
 | `wol/status`| Publishes `"MQTT Ready"`, firmware version, and status messages |
 | `wol/log`   | Publishes detailed logs (boot, WOL, ping, OTA)|
 
@@ -98,7 +98,9 @@ Before starting, ensure you have all the tools and libraries correctly installed
 - PinOut 1 and PinOut 2 MQTT commands for custom config.
 
 ### 2️⃣ MQTT Commands
+- LED flashes during Commands.
 - `"TurnOn"`: Sends WOL immediately.
+- `"CheckUpdate"`: Manually trigger an OTA update check.
 - `"PingPC"`: Pings the target and publishes online/offline status.
 - `"PinOut1On"`: Command for D4 output HIGH.
 - `"PinOut1Off"`: Command for D4 output LOW.
@@ -215,5 +217,6 @@ Or update by ESP32DATA `config.json`:
 <br>
 
 ### IoT MQTT Panel - Dash (Customizable - send: wol/event - receive: wol/status and wol/log)
-<div align="center"><img width="600" height="700" src="https://github.com/user-attachments/assets/d6216769-d525-4e6e-bdc9-7419653317dd" alt="IoT MQTT Dashboard" /></div>
+<div align="center"><img width="600" height="700" src="https://github.com/user-attachments/assets/6c4d2a4a-0736-497f-8eae-c5382d370452" alt="IoT MQTT Dashboard" /></div>
 <br>
+
