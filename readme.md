@@ -1,4 +1,4 @@
-# 🔥 Wake-on-LAN ESP32-C3 + MQTT + OTA + Portal (Wi-Fi) v5.2
+# 🔥 Wake-on-LAN ESP32-C3 + MQTT + OTA + Portal (Wi-Fi) v5.3
 
 Advanced ESP32-C3 project for sending **Wake-on-LAN (WOL) Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
@@ -10,8 +10,10 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 
 - 🌐 **Wi-Fi Integration**: Connects to your local Wi-Fi network.
 - 🖥️ **Wake-on-LAN (WOL)**: Sends magic packets to wake compatible PCs.
-- 🔘 **User Button**: D0 button sends WOL on >1s press.
-- ☁️ **MQTT Support**: Subscribes to `wol/event` for `"TurnOn"` or `"PingPC"` commands and publishes logs/status to `wol/log` and `wol/status`.
+- 🔘 **User Button WOL**: D0 button sends WOL on >1s press.
+- 🔘 **User command PinOut 1**: D4 output LOW or HIGH (Default LOW).
+- 🔘 **User command PinOut 2**: D5 output LOW or HIGH (Default LOW).
+- ☁️ **MQTT Support**: Subscribes to `wol/event` for `"TurnOn"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands and publishes logs/status to `wol/log` and `wol/status`.
 - 🔄 **Automatic Ping After WOL**: Schedules a ping 2 minutes after sending WOL (non-blocking).
 - 🕵️ **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target device is online.
 - 🔆 **LED Indicator**: D1 LED flashes to indicate WOL, ping, or OTA progress.
@@ -28,7 +30,7 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 Before starting, ensure you have all the tools and libraries correctly installed:
 
 1. **Arduino IDE**
-   - Version 1.8.18 recommended.
+   - Version 1.8.18 recommended ( >2.0 Upload ESP32 DATA don't work).
 
 2. **ESP32 Board Manager**
    - Add URL: `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
@@ -67,7 +69,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 
 | Topic        | Purpose                                         |
 |-------------|-------------------------------------------------|
-| `wol/event` | Subscribe to `"TurnOn"` or `"PingPC"` commands |
+| `wol/event` | Subscribe to `"TurnOn"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands |
 | `wol/status`| Publishes `"MQTT Ready"`, firmware version, and status messages |
 | `wol/log`   | Publishes detailed logs (boot, WOL, ping, OTA)|
 
@@ -79,10 +81,15 @@ Before starting, ensure you have all the tools and libraries correctly installed
 - Press Button D0 (>1s) to send WOL magic packet.
 - LED flashes during WOL.
 - Schedules a ping 2 minutes later to check if PC is online.
+- PinOut 1 and PinOut 2 MQTT commands for custom config.
 
 ### 2️⃣ MQTT Commands
 - `"TurnOn"`: Sends WOL immediately.
 - `"PingPC"`: Pings the target and publishes online/offline status.
+- `"PinOut1On"`: Command for D4 output HIGH.
+- `"PinOut1Off"`: Command for D4 output LOW.
+- `"PinOut2On"`: Command for D5 output HIGH.
+- `"PinOut2Off"`: Command for D5 output LOW.
 
 ### 3️⃣ OTA Updates
 - Checks every **1 hour** or Press Button D2 (only after boot) for new firmware (`version.txt`) on GitHub.
@@ -141,6 +148,8 @@ Or update by ESP32DATA `config.json`:
 | D0   | User button (send WOL)            |
 | D1   | LED indicator                     |
 | D2   | Factory reset / config portal     |
+| D4   | Output LOW or HIGH (MQTT)         |
+| D5   | Output LOW or HIGH (MQTT)         |
 
 ---
 
@@ -168,7 +177,7 @@ Or update by ESP32DATA `config.json`:
 <br>
 
 ### Schematic
-<div align="center"><img src="https://github.com/user-attachments/assets/69b907f5-264b-4f98-b777-c53e9436570a" alt="SCHEMATIC" /></div>
+<div align="center"><img width="1005" height="732" alt="Captura de tela 2025-09-06 022846" src="https://github.com/user-attachments/assets/70a35082-1443-414f-a9de-7901313f4b07" alt="SCHEMATIC" /></div>
 <br>
 
 ### Wi-Fi AP
@@ -192,6 +201,5 @@ Or update by ESP32DATA `config.json`:
 <br>
 
 ### IoT MQTT Panel - Dash (Customizable - send: wol/event - receive: wol/status and wol/log)
-<div align="center"><img width="600" height="700" src="https://github.com/user-attachments/assets/f32d1d7c-8b13-4af3-9301-70eb47db01dc" alt="IoT MQTT Dashboard" /></div>
+<div align="center"><img width="600" height="700" src="https://github.com/user-attachments/assets/d6216769-d525-4e6e-bdc9-7419653317dd" alt="IoT MQTT Dashboard" /></div>
 <br>
-
