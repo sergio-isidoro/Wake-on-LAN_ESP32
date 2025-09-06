@@ -23,7 +23,7 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 
 
 👉 **Important:** OTA updates only replace the firmware.  
-The configuration stored in **`/config.json`** (set via the WiFi/MQTT portal) is **preserved** and not modified by the update.  
+- The configuration stored in **`/config.json`** (set via the WiFi/MQTT portal) is **preserved** and not modified by the update.  
 
 ---
 
