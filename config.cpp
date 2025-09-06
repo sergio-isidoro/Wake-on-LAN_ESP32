@@ -35,7 +35,7 @@ bool saveConfig(const Config &cfg) {
     doc["target_ip"] = cfg.target_ip;
     doc["broadcastIP"] = cfg.broadcastIPStr;
 
-    JsonArray mac = doc["mac"].to<JsonArray>();
+    JsonArray mac = doc["mac_address"].to<JsonArray>();
     for (int i = 0; i < 6; i++) mac.add(cfg.mac_address[i]);
 
     doc["udp_port"] = cfg.udp_port;
