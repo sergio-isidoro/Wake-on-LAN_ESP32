@@ -19,6 +19,8 @@ void setup(){
   Serial.begin(115200);
   pinMode(RESET_OTA_BUTTON_PIN,INPUT_PULLUP);
   pinMode(BUTTON_GPIO,INPUT_PULLUP);
+  pinMode(PIN1_GPIO,OUTPUT); digitalWrite(PIN1_GPIO,LOW);
+  pinMode(PIN2_GPIO,OUTPUT); digitalWrite(PIN2_GPIO,LOW);
   pinMode(LED_GPIO,OUTPUT); digitalWrite(LED_GPIO,HIGH);
 
   if(digitalRead(RESET_OTA_BUTTON_PIN)==LOW) factoryReset();

@@ -1,6 +1,7 @@
 #include "mqtt.h"
 #include "config.h"
 #include "wol_ping.h"
+#include "helpers.h"
 
 WiFiClientSecure espClient;
 PubSubClient mqtt(espClient);
@@ -28,8 +29,22 @@ void mqttCallback(char* topic, byte* payload, unsigned int len) {
   String msg; for(unsigned int i=0;i<len;i++) msg += (char)payload[i]; msg.trim();
   if(msg == "TurnOn"){
     sendWOL("MQTT");
+  } else if(msg == "TurnOff"){
+    //... coming soon
   } else if(msg == "PingPC"){
     doPing();
+  } else if(msg == "PinOut1On"){
+    digitalWrite(PIN1_GPIO,HIGH);
+    mqttPublish("PinOut 1 -> ON");
+  } else if(msg == "PinOut1Off"){
+    digitalWrite(PIN1_GPIO,LOW);
+    mqttPublish("PinOut 1 -> OFF");
+  } else if(msg == "PinOut2On"){
+    digitalWrite(PIN2_GPIO,HIGH);
+    mqttPublish("PinOut 2 -> ON");
+  } else if(msg == "PinOut2Off"){
+    digitalWrite(PIN2_GPIO,LOW);
+    mqttPublish("PinOut 2 -> OFF");
   }
   mqtt.publish("wol/event", "", true);
 }
