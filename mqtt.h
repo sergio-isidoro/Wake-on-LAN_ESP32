@@ -5,6 +5,8 @@
 extern WiFiClientSecure espClient;
 extern PubSubClient mqtt;
 
+extern bool chkUpdate;
+
 void setupMQTT();
 void ensureMqtt();
 bool mqttConnected();

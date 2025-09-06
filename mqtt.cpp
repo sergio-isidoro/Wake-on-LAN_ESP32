@@ -6,6 +6,8 @@
 WiFiClientSecure espClient;
 PubSubClient mqtt(espClient);
 
+bool chkUpdate = false;
+
 void setupMQTT() {
   espClient.setInsecure();
   mqtt.setServer(config.mqtt_server, config.mqtt_port);
@@ -46,6 +48,10 @@ void mqttCallback(char* topic, byte* payload, unsigned int len) {
   } else if(msg == "TurnOff"){
     blinkDigit(2);
     //... coming soon
+
+  } else if(msg == "CheckUpdate"){
+    blinkDigit(2);
+    chkUpdate = true;
 
   } else if(msg == "PingPC"){
     blinkDigit(2);

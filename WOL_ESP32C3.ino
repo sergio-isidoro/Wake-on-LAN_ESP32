@@ -56,9 +56,10 @@ void loop(){
   handleButton();
   handleScheduledPing();
 
-  if(millis() - lastOTACheck > OTA_CHECK_INTERVAL_MS || digitalRead(RESET_OTA_BUTTON_PIN) == LOW){
+  if(millis() - lastOTACheck > OTA_CHECK_INTERVAL_MS || digitalRead(RESET_OTA_BUTTON_PIN) == LOW || chkUpdate){
     lastOTACheck=millis();
     performOTA();
+    chkUpdate = false;
   }
 
   server.handleClient();
