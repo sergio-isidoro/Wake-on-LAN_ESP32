@@ -220,6 +220,8 @@ Or update by ESP32DATA `config.json`:
 <div align="center"><img width="600" height="700" src="https://github.com/user-attachments/assets/6c4d2a4a-0736-497f-8eae-c5382d370452" alt="IoT MQTT Dashboard" /></div>
 <br>
 
+</div>
+
 ## 🎬 Video
 
 <div align="center">
