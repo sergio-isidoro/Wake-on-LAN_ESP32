@@ -1,3 +1,14 @@
+/*
+ * ota.cpp
+ * -------------------------------
+ * Implements the OTA update process:
+ *  - Downloads version.txt from GitHub
+ *  - Compares with the current firmware version
+ *  - If newer, downloads firmware binary
+ *  - Writes it to the OTA partition with progress via MQTT
+ *  - Restarts on success
+ */
+ 
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
 #include <HTTPClient.h>
@@ -8,7 +19,7 @@
 
 // URLs GitHub
 const char* versionURL   = "https://raw.githubusercontent.com/sergio-isidoro/Wake-on-LAN_ESP32C3/main/firmware/version.txt";
-const char* firmwareURL  = "https://raw.githubusercontent.com/sergio-isidoro/Wake-on-LAN_ESP32C3/main/firmware/WOL_ESP32C3.bin";
+const char* firmwareURL  = "https://raw.githubusercontent.com/sergio-isidoro/Wake-on-LAN_ESP32C3/main/firmware/WOL_ESP32.bin";
 
 #define OTA_BUF_SIZE 1024
 

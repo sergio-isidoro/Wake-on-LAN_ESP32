@@ -1,3 +1,12 @@
+/*
+ * wifi_utils.cpp
+ * -------------------------------
+ * Implements WiFi setup:
+ *  - Connects to WiFi using SSID/password from config
+ *  - Publishes status via MQTT
+ *  - If connection fails, starts ESP32 in AP mode for config portal
+ */
+ 
 #include "wifi_utils.h"
 #include <WiFi.h>
 #include "helpers.h"
@@ -17,10 +26,10 @@ void setupWiFi(){
 
   if(WiFi.status() == WL_CONNECTED){
     mqttPublish(("WiFi OK: " + WiFi.localIP().toString()).c_str());
-    
+
   } else {
     mqttPublish("WiFi Failed, starting AP...");
     WiFi.mode(WIFI_AP);
-    WiFi.softAP("ESP32C3_Config");
+    WiFi.softAP("WOL_ESP32_Config");
   }
 }

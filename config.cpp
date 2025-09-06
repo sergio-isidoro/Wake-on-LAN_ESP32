@@ -1,3 +1,12 @@
+/*
+ * config.cpp
+ * -------------------------------
+ * Implements configuration management:
+ *  - Saves and loads configuration to/from SPIFFS as JSON
+ *  - Provides factoryReset() to delete config and restart ESP32
+ *  - Publishes success messages via MQTT
+ */
+
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
 #include "config.h"

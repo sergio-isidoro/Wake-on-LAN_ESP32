@@ -1,3 +1,13 @@
+/*
+ * mqtt.cpp
+ * -------------------------------
+ * Implements MQTT communication:
+ *  - Connects to the MQTT server using credentials from config
+ *  - Publishes status and log messages
+ *  - Subscribes to WOL commands
+ *  - Processes incoming messages to trigger WOL or ping
+ */
+
 #include "mqtt.h"
 #include "config.h"
 #include "wol_ping.h"

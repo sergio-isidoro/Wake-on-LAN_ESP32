@@ -1,3 +1,13 @@
+/*
+ * configPortal.cpp
+ * -------------------------------
+ * Implements the WiFi/MQTT configuration portal:
+ *  - Serves HTML form to input SSID, MQTT server, and WOL target
+ *  - Parses POST requests to save config
+ *  - Stores configuration to SPIFFS using saveConfig()
+ *  - Restarts ESP32 after saving
+ */
+
 #include "configPortal.h"
 #include <SPIFFS.h>
 #include <ArduinoJson.h>

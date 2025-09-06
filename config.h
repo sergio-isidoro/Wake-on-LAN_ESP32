@@ -1,7 +1,18 @@
+/*
+ * config.h
+ * -------------------------------
+ * Declares the configuration structure and global variables:
+ *  - WiFi and MQTT credentials
+ *  - Target PC IP and MAC for WOL
+ *  - GPIO pins for button and LED
+ *  - OTA check interval and ping delay
+ *  - Functions for saving, loading, and resetting configuration
+ */
+
 #pragma once
 #include <Arduino.h>
 
-#define FIRMWARE_VERSION      "5.3"
+#define FIRMWARE_VERSION      "5.4"
 #define RESET_OTA_BUTTON_PIN  D2
 #define BUTTON_GPIO           D0
 #define LED_GPIO              D1

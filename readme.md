@@ -1,6 +1,6 @@
-# 🔥 Wake-on-LAN ESP32 + MQTT + OTA + Portal (Wi-Fi) v5.3
+# 🔥 Wake-on-LAN ESP32 + MQTT + OTA + Portal (Wi-Fi) v5.4
 
-Advanced ESP32-C3 project for sending **Wake-on-LAN (WOL) Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
+Advanced ESP32 project for sending **Wake-on-LAN (WOL) Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
 This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, optional factory reset, and the ability to **wake up the PC and check its ping from anywhere in the world via MQTT**.
 
@@ -21,11 +21,15 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 - 🛠️ **Factory Reset**: Holding D2 button LOW at boot deletes `config.json`.
 - 📄 **Configuration Portal**: Hosts HTML page on SPIFFS to configure Wi-Fi, MQTT, target IP/MAC, and UDP port.
 
+
+👉 **Important:** OTA updates only replace the firmware.  
+The configuration stored in **`/config.json`** (set via the WiFi/MQTT portal) is **preserved** and not modified by the update.  
+
 ---
 
 ## ✅ The code is compatible with:
 
-- **ESP32-C3** (e.g., Seeed Studio XIAO ESP32-C3, DevKitM-1, Lolin C3 Mini) **[Tested]**
+- **ESP32-C3** (e.g., **Seeed Studio XIAO ESP32-C3 [Tested]**, DevKitM-1, Lolin C3 Mini) 
 - **ESP32-S3** (DevKit, Seeed Studio XIAO S3, AiThinker modules, etc.)
 - **ESP32 original** (ESP32-WROOM-32, ESP32-WROVER, DevKit V1)
 - **ESP32-S2** (DevKit, XIAO ESP32-S2, etc.)
@@ -117,7 +121,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 
 ### 5️⃣ Configuration Portal
 - LED stay **fixed ON**
-- Hotspot: `WOL_ESP32C3_Config` if no config file.
+- Hotspot: `WOL_ESP32_Config` if no config file.
 - HTML page allows:
   - Wi-Fi SSID & password
   - MQTT server, port, user, password
@@ -130,7 +134,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 
 ## ⚙️ Configuration
 
-Portal via browser (http://192.168.4.1).
+Portal via browser **(http://192.168.4.1)**.
 
 Or update by ESP32DATA `config.json`:
 

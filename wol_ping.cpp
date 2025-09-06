@@ -1,3 +1,13 @@
+/*
+ * wol_ping.cpp
+ * -------------------------------
+ * Implements Wake-on-LAN and ping monitoring:
+ *  - Builds and sends the magic packet to broadcast address
+ *  - Uses ESP32Ping to check if the PC is online
+ *  - Button press can trigger WOL
+ *  - After sending WOL, performs a delayed ping
+ */
+
 #include "wol_ping.h"
 #include "helpers.h"
 #include "config.h"

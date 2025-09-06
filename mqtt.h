@@ -1,3 +1,11 @@
+/*
+ * mqtt.h
+ * -------------------------------
+ * Declares functions and objects for MQTT communication.
+ * Handles connection, reconnection, subscribing, publishing,
+ * and processing incoming MQTT messages for WOL events.
+ */
+
 #pragma once
 #include <PubSubClient.h>
 #include <WiFiClientSecure.h>

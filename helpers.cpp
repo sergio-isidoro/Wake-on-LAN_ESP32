@@ -1,3 +1,13 @@
+/*
+ * helpers.cpp
+ * -------------------------------
+ * Implements helper functions:
+ *  - mqttPublish() sends a message on "wol/log" topic
+ *  - blinkDigit() blinks LED n times
+ *  - blinkVersion() blinks firmware version digits
+ *  - Provides a global UDP object for WOL packets
+ */
+
 #include "helpers.h"
 #include "mqtt.h"
 #include "config.h"
