@@ -209,7 +209,7 @@ Or update by ESP32DATA `config.json`:
 <br>
 
 ### Console HiveMQ Cloud (can be other)
-<div align="center"><img width="600" height="361" src="https://github.com/user-attachments/assets/a818f4de-7b05-4c5f-ae86-9de40ca9604e" alt="HiveMQ Console" /></div>
+<div align="center"><img width="535" height="584" alt="Captura de tela 2025-09-06 114455" src="https://github.com/user-attachments/assets/5a63e078-1cb7-4f0d-87eb-70a353310c60" alt="HiveMQ Console" /></div>
 <br>
 
 ### IoT MQTT Panel (can be other)
@@ -220,3 +220,10 @@ Or update by ESP32DATA `config.json`:
 <div align="center"><img width="600" height="700" src="https://github.com/user-attachments/assets/6c4d2a4a-0736-497f-8eae-c5382d370452" alt="IoT MQTT Dashboard" /></div>
 <br>
 
+## 🎬 Video
+
+<div align="center">
+
+https://github.com/user-attachments/assets/116516b0-413b-4cc5-b5cc-4897c0921481
+
+</div>
