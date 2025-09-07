@@ -13,7 +13,9 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 - 🔘 **User Button WOL**: D0 button sends WOL on >1s press.
 - 🔘 **User command PinOut 1**: D4 output LOW or HIGH (Default LOW).
 - 🔘 **User command PinOut 2**: D5 output LOW or HIGH (Default LOW).
-- ☁️ **MQTT Support**: Subscribes to `wol/event` for `"TurnOn"`, `"CheckUpdate"`, `"FactoryReset"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands and publishes logs/status to `wol/log` and `wol/status`.
+- ☁️ **MQTT Support**:
+   - **Subscribes** to `wol/event` for `"TurnOn"`, `"CheckUpdate"`, `"FactoryReset"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands.
+   - **publishes** logs/status to `wol/log` and `wol/status`.
 - 🔄 **Automatic Ping After WOL**: Schedules a ping **1min** after sending WOL (non-blocking).
 - 🕵️ **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target device is online.
 - 🔆 **LED Indicator**: D1 LED flashes to indicate WOL, ping, or OTA progress.
@@ -211,6 +213,8 @@ Or update by ESP32DATA `config.json`:
 
 ### Console HiveMQ Cloud (can be other)
 <div align="center"><img width="535" height="584" alt="Captura de tela 2025-09-06 114455" src="https://github.com/user-attachments/assets/5a63e078-1cb7-4f0d-87eb-70a353310c60" alt="HiveMQ Console" /></div>
+<br>
+<img width="610" height="848" alt="Captura de tela 2025-09-08 001157" src="https://github.com/user-attachments/assets/104aa0d9-3e4d-45f2-a1b3-1ee83244164d" />
 <br>
 
 ### IoT MQTT Panel (can be other)
