@@ -25,7 +25,9 @@ void setupWiFi(){
   }
 
   if(WiFi.status() == WL_CONNECTED){
-    mqttPublish(("WiFi OK: " + WiFi.localIP().toString()).c_str());
+    IPAddress ip = WiFi.localIP();
+    Serial.print("WiFi connected, IP: ");
+    Serial.println(ip);
 
   } else {
     mqttPublish("WiFi Failed, starting AP...");

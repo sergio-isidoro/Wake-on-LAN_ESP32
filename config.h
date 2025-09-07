@@ -12,14 +12,14 @@
 #pragma once
 #include <Arduino.h>
 
-#define FIRMWARE_VERSION      "5.4"
+#define FIRMWARE_VERSION      "5.5"
 #define RESET_OTA_BUTTON_PIN  D2
 #define BUTTON_GPIO           D0
 #define LED_GPIO              D1
 #define PIN1_GPIO             D4
 #define PIN2_GPIO             D5
-#define OTA_CHECK_INTERVAL_MS 3600000UL   // 1h
-#define PING_DELAY_AFTER_WOL  120000UL    // 2min
+#define OTA_CHECK_INTERVAL_MS 43200000UL  // 12h
+#define PING_DELAY_AFTER_WOL  60000UL    // 1min
 
 struct Config {
   char ssid[32];

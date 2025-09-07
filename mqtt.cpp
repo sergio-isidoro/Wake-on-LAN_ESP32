@@ -33,6 +33,7 @@ void ensureMqtt() {
     if(mqtt.connect("ESP32C3-WOL", config.mqtt_user, config.mqtt_password)){
       mqtt.publish("wol/status","MQTT Ready",true);
       mqtt.subscribe("wol/event");
+      mqtt.publish("wol/event", "", true);
 
     } else {
       delay(2000);
@@ -62,6 +63,10 @@ void mqttCallback(char* topic, byte* payload, unsigned int len) {
   } else if(msg == "CheckUpdate"){
     blinkDigit(2);
     chkUpdate = true;
+
+  } else if(msg == "FactoryReset"){
+    blinkDigit(2);
+    factoryReset();
 
   } else if(msg == "PingPC"){
     blinkDigit(2);

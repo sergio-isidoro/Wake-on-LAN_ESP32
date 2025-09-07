@@ -7,13 +7,13 @@
  *  - Publishes success messages via MQTT
  */
 
+
 #include <SPIFFS.h>
 #include <ArduinoJson.h>
 #include "config.h"
 #include "mqtt.h"
 #include "helpers.h"
 
-// Definição das variáveis globais declaradas em config.h
 Config config;
 unsigned long lastOTACheck = 0;
 unsigned long wolSentAt = 0;
@@ -25,56 +25,85 @@ bool saveConfig(const Config &cfg) {
     File f = SPIFFS.open("/config.json", "w");
     if (!f) return false;
 
-    DynamicJsonDocument doc(1024);
-    doc["ssid"] = cfg.ssid;
-    doc["password"] = cfg.password;
-    doc["mqtt_server"] = cfg.mqtt_server;
-    doc["mqtt_port"] = cfg.mqtt_port;
-    doc["mqtt_user"] = cfg.mqtt_user;
+    JsonDocument doc;
+    doc["ssid"]          = cfg.ssid;
+    doc["password"]      = cfg.password;
+    doc["mqtt_server"]   = cfg.mqtt_server;
+    doc["mqtt_port"]     = cfg.mqtt_port;
+    doc["mqtt_user"]     = cfg.mqtt_user;
     doc["mqtt_password"] = cfg.mqtt_password;
-    doc["target_ip"] = cfg.target_ip;
-    doc["broadcastIP"] = cfg.broadcastIPStr;
-    doc["udp_port"] = cfg.udp_port;
+    doc["target_ip"]     = cfg.target_ip;
+    doc["broadcastIP"]   = cfg.broadcastIPStr;
+    doc["udp_port"]      = cfg.udp_port;
 
-    JsonArray mac = doc.createNestedArray("mac_address");
-    for (int i = 0; i < 6; i++) mac.add(cfg.mac_address[i]);
+    char macStr[18];
+    sprintf(macStr, "%02X:%02X:%02X:%02X:%02X:%02X",
+            cfg.mac_address[0], cfg.mac_address[1], cfg.mac_address[2],
+            cfg.mac_address[3], cfg.mac_address[4], cfg.mac_address[5]);
+    
+    doc["mac_address"] = macStr;
 
+    // Save the json
     serializeJsonPretty(doc, f);
     f.close();
 
-    Serial.println("Configuration saved in /config.json (SPIFFS)");
+    Serial.println();
+    File f2 = SPIFFS.open("/config.json", "r");
+    if (f2) {
+        Serial.println("Config JSON (saved in /config.json):");
+        while (f2.available()) {
+            Serial.write(f2.read());
+        }
+        f2.close();
+        Serial.println();
+    } else {
+        Serial.println("Error reopening /config.json");
+    }
+    Serial.println();
+
     return true;
 }
 
 bool loadConfig() {
     if (!SPIFFS.begin(true)) return false;
-
     File f = SPIFFS.open("/config.json", "r");
     if (!f) return false;
 
-    DynamicJsonDocument doc(1024);
+    JsonDocument doc;
     DeserializationError err = deserializeJson(doc, f);
     f.close();
     if (err) return false;
 
-    strlcpy(config.ssid,            doc["ssid"]            | "", sizeof(config.ssid));
-    strlcpy(config.password,        doc["password"]        | "", sizeof(config.password));
-    strlcpy(config.mqtt_server,     doc["mqtt_server"]     | "", sizeof(config.mqtt_server));
-    config.mqtt_port =              doc["mqtt_port"]       | 1883;
-    strlcpy(config.mqtt_user,       doc["mqtt_user"]       | "", sizeof(config.mqtt_user));
-    strlcpy(config.mqtt_password,   doc["mqtt_password"]   | "", sizeof(config.mqtt_password));
-    strlcpy(config.target_ip,       doc["target_ip"]       | "", sizeof(config.target_ip));
-    strlcpy(config.broadcastIPStr,  doc["broadcastIP"]     | "", sizeof(config.broadcastIPStr));
-    config.udp_port =               doc["udp_port"]        | 9;
-
-    JsonArray mac = doc["mac_address"].as<JsonArray>();
-    if (mac.size() == 6) {
-        for (int i = 0; i < 6; i++) config.mac_address[i] = mac[i];
-    } else {
-        memset(config.mac_address, 0, 6);
+    strlcpy(config.ssid, doc["ssid"] | "", sizeof(config.ssid));
+    strlcpy(config.password, doc["password"] | "", sizeof(config.password));
+    strlcpy(config.mqtt_server, doc["mqtt_server"] | "", sizeof(config.mqtt_server));
+    config.mqtt_port = doc["mqtt_port"] | 8883;
+    strlcpy(config.mqtt_user, doc["mqtt_user"] | "", sizeof(config.mqtt_user));
+    strlcpy(config.mqtt_password, doc["mqtt_password"] | "", sizeof(config.mqtt_password));
+    strlcpy(config.target_ip, doc["target_ip"] | "", sizeof(config.target_ip));
+    strlcpy(config.broadcastIPStr, doc["broadcastIP"] | "", sizeof(config.broadcastIPStr));
+    config.udp_port = doc["udp_port"] | 9;
+    
+    const char* macStr = doc["mac_address"];
+    for (int i = 0; i < 6; i++) {
+      char byteStr[3] = { macStr[i*3], macStr[i*3 + 1], '\0' };
+      config.mac_address[i] = (uint8_t) strtoul(byteStr, nullptr, 16);
     }
 
-    mqttPublish("Configuration loaded successfully! (SPIFFS)");
+    Serial.println();
+    File f2 = SPIFFS.open("/config.json", "r");
+    if (f2) {
+        Serial.println("Config JSON (load from /config.json):");
+        while (f2.available()) {
+            Serial.write(f2.read());
+        }
+        f2.close();
+        Serial.println();
+    } else {
+        Serial.println("Error reopening /config.json");
+    }
+
+    mqttPublish("Configuration loaded successfully!");
     return true;
 }
 

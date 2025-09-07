@@ -69,7 +69,7 @@ void startConfigPortal(){
   WiFi.mode(WIFI_AP);
   WiFi.softAP("WOL_ESP32C3_Setup");
 
-  Serial.println("Connect to WiFi AP: ESP32C3_Config");
+  Serial.println("Connect to WiFi AP: WOL_ESP32C3_Setup");
   Serial.println("Open http://192.168.4.1 in browser");
 
   server.on("/", HTTP_GET, handleRoot);

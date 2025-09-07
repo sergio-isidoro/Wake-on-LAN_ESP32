@@ -13,28 +13,33 @@
 #include "config.h"
 #include <ESP32Ping.h>
 
-void sendWOL(const char* reason, int n){
-  uint8_t packet[102];
-  for(int i = 0; i < n; i++){
-    memset(packet, 0xFF, 6);
-    for(int j = 0; j < 16; j++)
-      memcpy(&packet[6 + j*6], config.mac_address, 6);
+void sendWOL(const char* reason, int n) {
+    uint8_t packet[102];
 
-    IPAddress bcast;
-    if(!bcast.fromString(config.broadcastIPStr)) {
-      Serial.println("Broadcast IP error");
-      return;
+    for(int i = 0; i < n; i++) {
+        memset(packet, 0xFF, 6);
+        for(int j = 0; j < 16; j++) {
+            memcpy(&packet[6+j*6], config.mac_address, 6);
+        }
+
+        IPAddress bcast;
+        if(!bcast.fromString(config.broadcastIPStr)) {
+            Serial.println("Broadcast IP error");
+            return;
+        }
+
+        udp.beginPacket(bcast, config.udp_port);
+        udp.write(packet, sizeof(packet));
+        udp.endPacket();
     }
 
-    udp.beginPacket(bcast, config.udp_port);
-    udp.write(packet, sizeof(packet));
-    udp.endPacket();
-  }
+    mqttPublish(("WOL sent (" + String(reason) + ")").c_str());
+    Serial.println("WOL sent " + String(reason));
 
-  mqttPublish(("WOL sent (" + String(reason) + ")").c_str());
-  wolSentAt = millis();
-  wolPendingPing = true;
+    wolSentAt = millis();
+    wolPendingPing = true;
 }
+
 
 void doPing(){
   IPAddress target; 

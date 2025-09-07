@@ -70,7 +70,6 @@ void loop(){
 
   if(FirstBoot){
     mqttPublish(("----> WOL ESP32 v" + String(FIRMWARE_VERSION)).c_str());
-    mqtt.publish("wol/event", "", true);
     FirstBoot = false;
   }
 
@@ -86,4 +85,3 @@ void loop(){
   server.handleClient();
   delay(1);
 }
-

@@ -1,4 +1,4 @@
-# 🔥 Wake-on-LAN ESP32 + MQTT + OTA + Portal (Wi-Fi) v5.4
+# 🔥 Wake-on-LAN ESP32 + MQTT + OTA + Portal (Wi-Fi) v5.5
 
 Advanced ESP32 project for sending **Wake-on-LAN (WOL) Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
@@ -13,11 +13,11 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 - 🔘 **User Button WOL**: D0 button sends WOL on >1s press.
 - 🔘 **User command PinOut 1**: D4 output LOW or HIGH (Default LOW).
 - 🔘 **User command PinOut 2**: D5 output LOW or HIGH (Default LOW).
-- ☁️ **MQTT Support**: Subscribes to `wol/event` for `"TurnOn"`, `"CheckUpdate"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands and publishes logs/status to `wol/log` and `wol/status`.
-- 🔄 **Automatic Ping After WOL**: Schedules a ping 2 minutes after sending WOL (non-blocking).
+- ☁️ **MQTT Support**: Subscribes to `wol/event` for `"TurnOn"`, `"CheckUpdate"`, `"FactoryReset"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands and publishes logs/status to `wol/log` and `wol/status`.
+- 🔄 **Automatic Ping After WOL**: Schedules a ping **1min** after sending WOL (non-blocking).
 - 🕵️ **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target device is online.
 - 🔆 **LED Indicator**: D1 LED flashes to indicate WOL, ping, or OTA progress.
-- 💾 **OTA Updates**: Checks for firmware every hour; publishes progress to MQTT every 10%.
+- 💾 **OTA Updates**: Checks for firmware every **12h**; publishes progress to MQTT every 10%.
 - 🛠️ **Factory Reset**: Holding D2 button LOW at boot deletes `config.json`.
 - 📄 **Configuration Portal**: Hosts HTML page on SPIFFS to configure Wi-Fi, MQTT, target IP/MAC, and UDP port.
 
@@ -44,7 +44,7 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 Before starting, ensure you have all the tools and libraries correctly installed:
 
 1. **Arduino IDE**
-   - Version 1.8.18 recommended ( >2.0 Upload ESP32 DATA don't work).
+   - Version 1.8.18 recommended **( >2.0 Upload ESP32 DATA don't work)**.
 
 2. **ESP32 Board Manager**
    - Add URL: `https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json`
@@ -68,7 +68,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 2. **Partition Scheme**: Default 4MB (supports OTA)  
 3. **Upload Speed**: 921600 (optional)  
 4. **Flash Size**: 4MB  
-5. **SPIFFS / LittleFS**
+5. **SPIFFS**
    - Store `config.json` and `setup.html`
    - Upload via **ESP32 Sketch Data Upload** plugin.
     - The **`data`** folder is used to store files that will be uploaded to the **SPIFFS** filesystem on the ESP32.
@@ -83,7 +83,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 
 | Topic        | Purpose                                         |
 |-------------|-------------------------------------------------|
-| `wol/event` | Subscribe to `"TurnOn"`, `"CheckUpdate"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands |
+| `wol/event` | Subscribe to `"TurnOn"`, `"CheckUpdate"`, `"FactoryReset"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands |
 | `wol/status`| Publishes `"MQTT Ready"`, firmware version, and status messages |
 | `wol/log`   | Publishes detailed logs (boot, WOL, ping, OTA)|
 
@@ -94,13 +94,14 @@ Before starting, ensure you have all the tools and libraries correctly installed
 ### 1️⃣ Button-triggered WOL
 - Press Button D0 (>1s) to send WOL magic packet.
 - LED flashes during WOL.
-- Schedules a ping 2 minutes later to check if PC is online.
+- Schedules a ping 1 minutes later to check if PC is online.
 - PinOut 1 and PinOut 2 MQTT commands for custom config.
 
 ### 2️⃣ MQTT Commands
 - LED flashes during Commands.
 - `"TurnOn"`: Sends WOL immediately.
 - `"CheckUpdate"`: Manually trigger an OTA update check.
+- `"FactoryReset"`: Manually trigger Factory Reset.
 - `"PingPC"`: Pings the target and publishes online/offline status.
 - `"PinOut1On"`: Command for D4 output HIGH.
 - `"PinOut1Off"`: Command for D4 output LOW.
@@ -108,7 +109,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 - `"PinOut2Off"`: Command for D5 output LOW.
 
 ### 3️⃣ OTA Updates
-- Checks every **1 hour** or Press Button D2 (only after boot) for new firmware (`version.txt`) on GitHub.
+- Checks every **12h** or Press Button D2 (only after boot) for new firmware (`version.txt`) on GitHub.
 - Downloads and flashes firmware directly to OTA partition.
 - Publishes progress via MQTT every 10%.
 - Reports:
