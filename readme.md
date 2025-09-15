@@ -182,6 +182,14 @@ Or update by ESP32DATA `config.json`:
 
 ---
 
+## 🚀 Project Status
+
+- [x] 🌐 Wake on Lan  
+- [x] 📡 MQTT  
+- [ ] 📴 Shutdown
+
+---
+
 # ✨ Thanks for using this project!
 - Developed for ESP32-C3 with Seeed Studio XIAO board.
 - Integrates WOL, MQTT, OTA, and a Wi-Fi configuration portal.
