@@ -58,7 +58,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int len) {
 
   } else if(msg == "TurnOff"){
     blinkDigit(2);
-    //... coming soon
+    sendShutdownPacket("MQTT", 10);
 
   } else if(msg == "CheckUpdate"){
     blinkDigit(2);
