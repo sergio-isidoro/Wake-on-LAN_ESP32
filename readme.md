@@ -10,6 +10,7 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 
 - 🌐 **Wi-Fi Integration**: Connects to your local Wi-Fi network.
 - 🖥️ **Wake-on-LAN (WOL)**: Sends **n** magic packets to wake compatible PCs **(n = 10)**.
+- 🖥️ **Shutdown**: Sends **n** magic packets to Shutdown compatible PCs **(n = 10)**.
 - 🔘 **User Button WOL**: D0 button sends WOL on >1s press.
 - 🔘 **User command PinOut 1**: D4 output LOW or HIGH (Default LOW).
 - 🔘 **User command PinOut 2**: D5 output LOW or HIGH (Default LOW).
