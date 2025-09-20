@@ -184,14 +184,16 @@ Supports hidden background execution and can be converted into a Windows executa
 To have the executable run in the background even before any user logs in, you can register it as a **Windows Service** using **NSSM (Non-Sucking Service Manager)**.
 
 1. Download NSSM from: [https://nssm.cc/download](https://nssm.cc/download)  
-2. Extract the files to a folder, for example: ```C:\nssm```
-3. Install the service, open Command Prompt as Administrator and run: ```nssm install ShutdownListener```
-4. In the window that opens, configure:
+2. Extract the files to a folder, for example: ```C:\nssm\nssm.exe```
+3. Install the service, open Command Prompt as Administrator and run: ```C:\nssm\nssm.exe install ShutdownListener```
+   - To remove the service if wrong, open the Command Prompt as Administrator and run: ```C:\nssm\nssm.exe remove ShutdownListener```
+5. In the window that opens, configure:
    - Path: full path to your executable, e.g., ```C:\Path\To\YourProgram.exe```
    - Startup directory: folder containing the exe
+   - Arguments: empty
    - Service name: ShutdownListener (or another name of your choice)
-5. Click Install service.
-6. Start the service In CMD, run: ```nssm start ShutdownListener```
+6. Click Install service.
+7. Start the service In CMD, run: ```C:\nssm\nssm.exe start ShutdownListener```
 
 ✅ Now the program will run automatically in the background, even before login, ready to listen for the magic packet to shut down the PC.
 
