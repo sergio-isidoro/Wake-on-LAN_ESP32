@@ -52,7 +52,7 @@ class UDPShutdownListener:
         logging.info("Local MAC: %s", get_mac_address())
 
     def start(self):
-        shutdown_command = "shutdown /s /t 60" if os.name == 'nt' else "sudo /sbin/shutdown -h now"
+        shutdown_command = "shutdown /s /t 1" if os.name == 'nt' else "sudo /sbin/shutdown -h now"
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
