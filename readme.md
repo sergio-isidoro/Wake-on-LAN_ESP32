@@ -1,8 +1,8 @@
-# Wake-on-LAN ESP32 + MQTT + OTA + Portal (Wi-Fi) v5.5
+# Wake-on-LAN ESP32 + Shutdown + MQTT + OTA + Portal (Wi-Fi) v5.6
 
-Advanced ESP32 project for sending **Wake-on-LAN (WOL) Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
+Advanced ESP32 project for sending **Wake-on-LAN (WOL) Magic Packets** and **Shutdown Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
-This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, optional factory reset, and the ability to **wake up the PC and check its ping from anywhere in the world via MQTT**.
+This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, optional factory reset, and the ability to **Change PinOut1&2 levels**, **Check Updates**, **Shutdown**, **wake up the PC and check its ping from anywhere in the world via MQTT**.
 
 ---
 
@@ -14,7 +14,7 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 - 🔘 **User command PinOut 1**: D4 output LOW or HIGH (Default LOW).
 - 🔘 **User command PinOut 2**: D5 output LOW or HIGH (Default LOW).
 - ☁️ **MQTT Support**:
-   - **Subscribes** to `wol/event` for `"TurnOn"`, `"CheckUpdate"`, `"FactoryReset"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands.
+   - **Subscribes** to `wol/event` for `"TurnOn"`, `"TurnOff"`, `"CheckUpdate"`, `"FactoryReset"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands.
    - **publishes** logs/status to `wol/log` and `wol/status`.
 - 🔄 **Automatic Ping After WOL**: Schedules a ping **1min** after sending WOL (non-blocking).
 - 🕵️ **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target device is online.
@@ -85,7 +85,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 
 | Topic        | Purpose                                         |
 |-------------|-------------------------------------------------|
-| `wol/event` | Subscribe to `"TurnOn"`, `"CheckUpdate"`, `"FactoryReset"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands |
+| `wol/event` | Subscribe to `"TurnOn"`, `"TurnOff"`, `"CheckUpdate"`, `"FactoryReset"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands |
 | `wol/status`| Publishes `"MQTT Ready"`, firmware version, and status messages |
 | `wol/log`   | Publishes detailed logs (boot, WOL, ping, OTA)|
 
@@ -101,7 +101,8 @@ Before starting, ensure you have all the tools and libraries correctly installed
 
 ### 2️⃣ MQTT Commands
 - LED flashes during Commands.
-- `"TurnOn"`: Sends WOL immediately.
+- `"TurnOn"`: Sends WOL.
+- `"TurnOn"`: Sends Shutdown (need script running on WIN).
 - `"CheckUpdate"`: Manually trigger an OTA update check.
 - `"FactoryReset"`: Manually trigger Factory Reset.
 - `"PingPC"`: Pings the target and publishes online/offline status.
