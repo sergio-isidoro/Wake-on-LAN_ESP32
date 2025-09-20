@@ -222,6 +222,7 @@ To test without shutting down the PC, run with the --simulate argument: ```Run_s
 - MQTT Logs: Full OTA, WOL, and ping progress published to wol/log.
 - SPIFFS HTML: setup.html must be uploaded via Arduino IDE or ESP32FS tool.
 - Firmware Version: Stored in FIRMWARE_VERSION constant (5.2); OTA compares with version.txt.
+- Shutdown in 1min.
 
 ## 🚀 Project Status
 
