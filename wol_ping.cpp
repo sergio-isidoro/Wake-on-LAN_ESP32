@@ -62,6 +62,9 @@ void sendShutdownPacket(const char* reason, int n) {
 
     mqttPublish(("Shutdown Packet sent (" + String(reason) + ")").c_str());
     Serial.println("Shutdown Packet sent " + String(reason));
+
+    wolSentAt = millis();
+    wolPendingPing = true;
 }
 
 void doPing(){

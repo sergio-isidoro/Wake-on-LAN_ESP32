@@ -2,7 +2,7 @@
 
 Advanced ESP32 project for sending **Wake-on-LAN (WOL) Magic Packets** and **Shutdown Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
-This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, optional factory reset, and the ability to **Shutdown**, **wake up the PC and check its ping from anywhere in the world via MQTT**.
+This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, optional factory reset, and the ability to **Shutdown the PC, wake it up, and check its ping after 1 minute from anywhere in the world via MQTT**.
 
 ---
 
@@ -17,7 +17,7 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 - ☁️ **MQTT Support**:
    - **Subscribes** to `wol/event` for `"TurnOn"`, `"TurnOff"`, `"CheckUpdate"`, `"FactoryReset"`, `"PingPC"`, `"PinOut1On"`, `"PinOut1Off"`, `"PinOut2On"` or `"PinOut2Off"` commands.
    - **publishes** logs/status to `wol/log` and `wol/status`.
-- 🔄 **Automatic Ping After WOL**: Schedules a ping **1min** after sending WOL (non-blocking).
+- 🔄 **Automatic Ping After WOL or Shutdown**: Schedules a ping **1min** after sending WOL (non-blocking).
 - 🕵️ **Ping-based Status Check**: Uses `ESP32Ping` to verify if the target device is online.
 - 🔆 **LED Indicator**: D1 LED flashes to indicate WOL, ping, or OTA progress.
 - 💾 **OTA Updates**: Checks for firmware every **12h**; publishes progress to MQTT every 10%.
@@ -103,7 +103,7 @@ Before starting, ensure you have all the tools and libraries correctly installed
 ### 2️⃣ MQTT Commands
 - LED flashes during Commands.
 - `"TurnOn"`: Sends WOL.
-- `"TurnOn"`: Sends Shutdown (need script running on WIN).
+- `"TurnOff"`: Sends Shutdown (need script running in background).
 - `"CheckUpdate"`: Manually trigger an OTA update check.
 - `"FactoryReset"`: Manually trigger Factory Reset.
 - `"PingPC"`: Pings the target and publishes online/offline status.
@@ -224,7 +224,6 @@ To test without shutting down the PC, run with the --simulate argument: ```Run_s
 - MQTT Logs: Full OTA, WOL, and ping progress published to wol/log.
 - SPIFFS HTML: setup.html must be uploaded via Arduino IDE or ESP32FS tool.
 - Firmware Version: Stored in FIRMWARE_VERSION constant (5.2); OTA compares with version.txt.
-- Shutdown in 1min.
 
 ## 🚀 Project Status
 
