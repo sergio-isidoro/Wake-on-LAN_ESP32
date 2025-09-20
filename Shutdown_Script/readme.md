@@ -9,14 +9,13 @@ To have the executable run in the background even before any user logs in, you c
 
 1. Download NSSM from: [https://nssm.cc/download](https://nssm.cc/download)  
 2. Extract the files to a folder, for example: ```C:\nssm```
-3. Install the service
-4. Open Command Prompt as Administrator and run: ```nssm install ShutdownListener```
-5. In the window that opens, configure:
-6. Path: full path to your executable, e.g., ```C:\Path\To\YourProgram.exe```
-7. Startup directory: folder containing the exe
-8. Service name: ShutdownListener (or another name of your choice)
-9. Click Install service.
-10. Start the service In CMD, run: ```nssm start ShutdownListener```
+3. Install the service, open Command Prompt as Administrator and run: ```nssm install ShutdownListener```
+4. In the window that opens, configure:
+   - Path: full path to your executable, e.g., ```C:\Path\To\YourProgram.exe```
+   - Startup directory: folder containing the exe
+   - Service name: ShutdownListener (or another name of your choice)
+5. Click Install service.
+6. Start the service In CMD, run: ```nssm start ShutdownListener```
 
 ✅ Now the program will run automatically in the background, even before login, ready to listen for the magic packet to shut down the PC.
 
