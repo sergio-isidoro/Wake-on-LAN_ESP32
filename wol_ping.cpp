@@ -14,31 +14,47 @@
 #include <ESP32Ping.h>
 
 void sendWOL(const char* reason, int n) {
-    uint8_t packet[102];
+    uint8_t magic_packet[102];
 
-    for(int i = 0; i < n; i++) {
-        memset(packet, 0xFF, 6);
-        for(int j = 0; j < 16; j++) {
-            memcpy(&packet[6+j*6], config.mac_address, 6);
-        }
-
-        IPAddress bcast;
-        if(!bcast.fromString(config.broadcastIPStr)) {
-            Serial.println("Broadcast IP error");
-            return;
-        }
-
-        udp.beginPacket(bcast, config.udp_port);
-        udp.write(packet, sizeof(packet));
-        udp.endPacket();
+    // 1. Construir o Magic Packet uma vez
+    memset(magic_packet, 0xFF, 6);
+    for(int j = 0; j < 16; j++) {
+        memcpy(&magic_packet[6 + j * 6], config.mac_address, 6);
     }
 
-    mqttPublish(("WOL sent (" + String(reason) + ")").c_str());
-    Serial.println("WOL sent " + String(reason));
+    // --- Send by Wi-Fi ---
+    IPAddress wifi_bcast;
+    if(wifi_bcast.fromString(config.broadcastIPStr)) {
+        for(int i = 0; i < n; i++) {
+            udp.beginPacket(wifi_bcast, config.udp_port);
+            udp.write(magic_packet, sizeof(magic_packet));
+            udp.endPacket();
+        }
+        mqttPublish(("WOL sent (Wi-Fi) - " + String(reason)).c_str());
+        Serial.println("WOL sent (Wi-Fi)");
+    } else {
+        Serial.println("Broadcast IP (Wi-Fi) error");
+    }
+
+    // --- Send by Ethernet (Offline) ---
+    EthernetUDP ethUdp;
+    ethUdp.begin(config.udp_port);
+    
+    IPAddress eth_bcast(192, 168, 5, 255); 
+
+    for(int i = 0; i < n; i++) {
+        ethUdp.beginPacket(eth_bcast, config.udp_port);
+        ethUdp.write(magic_packet, sizeof(magic_packet));
+        ethUdp.endPacket();
+    }
+    mqttPublish(("WOL sent (LAN) - " + String(reason)).c_str());
+    Serial.println("WOL sent (LAN)");
+    ethUdp.stop();
 
     wolSentAt = millis();
     wolPendingPing = true;
 }
+
 
 void sendShutdownPacket(const char* reason, int n) {
     uint8_t packet[102];

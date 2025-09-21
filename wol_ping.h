@@ -10,9 +10,10 @@
 
 #pragma once
 #include "config.h"
+#include <EthernetUdp.h>
 
 void sendWOL(const char* reason, int n);
-void sendShutdownPacket(const char* reason, int n)
+void sendShutdownPacket(const char* reason, int n);
 void doPing();
 void handleButton();
 void handleScheduledPing();

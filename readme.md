@@ -1,6 +1,6 @@
-# Wake-on-LAN ESP32 + Shutdown + MQTT + OTA + Portal (Wi-Fi) v5.6
+# Wake-on-LAN ESP32 + Shutdown + MQTT + OTA + LAN (offline) + Portal (Wi-Fi) v6.0
 
-Advanced ESP32 project for sending **Wake-on-LAN (WOL) Magic Packets** and **Shutdown Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
+Advanced ESP32 project for sending **Wake-on-LAN (WOL) Magic Packets** and **Shutdown Magic Packets** over Wi-Fi and a dedicated wired **LAN port (SPI)**, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
 This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, optional factory reset, and the ability to **Shutdown the PC, wake it up, and check its ping after 1 minute, this is possible from anywhere in the world via MQTT**.
 
@@ -10,6 +10,7 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 
 - 🌐 **Wi-Fi Integration**: Connects to your local Wi-Fi network.
 - 🖥️ **Wake-on-LAN (WOL)**: Sends **n** magic packets to wake compatible PCs **(n = 10)**.
+- 🔌 **Redundant WOL (SPI LAN)**: Sends magic packets over wired LAN port (W5500) (offline mode).
 - 🖥️ **Shutdown**: Sends **n** magic packets to Shutdown compatible PCs **(n = 10)**.
 - 🔘 **User Button WOL**: D0 button sends WOL on >1s press.
 - 🔘 **User command PinOut 1**: D4 output LOW or HIGH (Default LOW).
@@ -25,6 +26,7 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 - 📄 **Configuration Portal**: Hosts HTML page on SPIFFS to configure Wi-Fi, MQTT, target IP/MAC, and UDP port.
 
 
+
 👉 **Important:** OTA updates only replace the firmware.  
 - The configuration stored in **`/config.json`** (set via the WiFi/MQTT portal) is **preserved** and not modified by the update.  
 
@@ -32,11 +34,15 @@ This project supports **hardware button-triggered WOL**, scheduled ping after WO
 
 ## ✅ The code is compatible with:
 
-- **ESP32-C3** (e.g., **Seeed Studio XIAO ESP32-C3 [Tested]**, DevKitM-1, Lolin C3 Mini) 
-- **ESP32-S3** (DevKit, Seeed Studio XIAO S3, AiThinker modules, etc.)
-- **ESP32 original** (ESP32-WROOM-32, ESP32-WROVER, DevKit V1)
-- **ESP32-S2** (DevKit, XIAO ESP32-S2, etc.)
-- **ESP32-PICO-D4** (with 4 MB flash)
+### Microcontroller 
+- **ESP32-C3** (e.g., **Seeed Studio XIAO ESP32-C3 [Tested]**, DevKitM-1, Lolin C3 Mini).
+- **ESP32-S3** (DevKit, Seeed Studio XIAO S3, AiThinker modules, etc.).
+- **ESP32 original** (ESP32-WROOM-32, ESP32-WROVER, DevKit V1).
+- **ESP32-S2** (DevKit, XIAO ESP32-S2, etc.).
+- **ESP32-PICO-D4** (with 4 MB flash).
+
+### Peripheral
+- **W5500** (Ethernet Network Module Hardware SPI to LAN).
 
 ---
 
@@ -171,6 +177,10 @@ Or update by ESP32DATA `config.json`:
 | D2   | Factory reset / config portal     |
 | D4   | Output LOW or HIGH (MQTT)         |
 | D5   | Output LOW or HIGH (MQTT)         |
+| D7   | CS/SS (W5500)         |
+| D8   | SCK (W5500)        |
+| D9   | MISO (W5500)         |
+| D10   | MOSI (W5500)         |
 
 ---
 
@@ -230,12 +240,12 @@ To test without shutting down the PC, run with the --simulate argument: ```Run_s
 - [x] 🌐 Wake on Lan  
 - [x] 📡 MQTT  
 - [x] 📴 Shutdown
+- [x] 🔌 LAN W5500 (Offline mode)
 
 ---
 
 # ✨ Thanks for using this project!
 - Developed for ESP32-C3 with Seeed Studio XIAO board.
-- Integrates WOL, MQTT, OTA, and a Wi-Fi configuration portal.
 - Ideal for automating PC wake-up and monitoring over Wi-Fi.
 
 ## ⚡Image
