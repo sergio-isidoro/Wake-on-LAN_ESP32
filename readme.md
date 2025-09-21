@@ -252,8 +252,12 @@ To test without shutting down the PC, run with the --simulate argument: ```Run_s
 
 <div align="center">
 
-### Pinout
+### Pinout Esp32C3
 <div align="center"><img src="https://github.com/user-attachments/assets/5ac26256-06c6-40ae-ab29-bd35d11dfe80" alt="PINOUT" /></div>
+<br>
+
+### Pinout W5500
+<div align="center"><img src="https://github.com/user-attachments/assets/b45c9d3d-99f7-49ec-b280-36f884ad0cd8" alt="PINOUT" /></div>
 <br>
 
 ### Schematic
