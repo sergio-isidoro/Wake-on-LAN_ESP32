@@ -12,7 +12,7 @@
 #pragma once
 #include <Arduino.h>
 
-#define FIRMWARE_VERSION      "6.0"
+#define FIRMWARE_VERSION      "6.1"
 #define RESET_OTA_BUTTON_PIN  D2
 #define BUTTON_GPIO           D0
 #define LED_GPIO              D1

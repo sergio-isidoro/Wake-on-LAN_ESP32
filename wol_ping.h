@@ -12,6 +12,9 @@
 #include "config.h"
 #include <EthernetUdp.h>
 
+extern bool wolPendingPing;
+extern bool ethernet_lan_present;
+
 void sendWOL(const char* reason, int n);
 void sendShutdownPacket(const char* reason, int n);
 void doPing();

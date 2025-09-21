@@ -41,10 +41,11 @@
 #define ETH_MOSI_PIN D10  // MOSI
 #define ETH_CS_PIN D7     // <-- Modify for your CS/SS
 
-byte eth_mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED }; // Static MAC for W5500
-IPAddress eth_ip(192, 168, 5, 200); // Static IP for W5500
+byte eth_mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };  // Static MAC for W5500
+IPAddress eth_ip(192, 168, 5, 200);                       // Static IP for W5500
 
 bool FirstBoot = true;
+bool ethernet_lan_present = false;
 
 void setup(){
   Serial.begin(115200);
@@ -69,13 +70,21 @@ void setup(){
   SPI.begin(ETH_SCK_PIN, ETH_MISO_PIN, ETH_MOSI_PIN, -1);
   Ethernet.init(ETH_CS_PIN);
   Ethernet.begin(eth_mac, eth_ip);
-  delay(200);
+
+  if (Ethernet.hardwareStatus() != EthernetNoHardware) {
+    delay(200);
+    if (Ethernet.linkStatus() == LinkON) {
+      ethernet_lan_present = true;
+    }
+  }
 
   setupWiFi();
   setupMQTT();
   udp.begin(config.udp_port);
 
   blinkVersion(FIRMWARE_VERSION);
+
+  performOTA();
   lastOTACheck = millis();
 }
 

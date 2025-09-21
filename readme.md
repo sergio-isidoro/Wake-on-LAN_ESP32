@@ -1,4 +1,4 @@
-# Wake-on-LAN ESP32 + Shutdown + MQTT + OTA + LAN (offline) + Portal (Wi-Fi) v6.0
+# Wake-on-LAN ESP32 + Shutdown + MQTT + OTA + LAN (offline) + Portal (Wi-Fi) v6.1
 
 Advanced ESP32 project for sending **Wake-on-LAN (WOL) Magic Packets** and **Shutdown Magic Packets** over Wi-Fi and a dedicated wired **LAN port (SPI)**, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 

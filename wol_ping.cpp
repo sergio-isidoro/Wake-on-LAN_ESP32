@@ -16,13 +16,12 @@
 void sendWOL(const char* reason, int n) {
     uint8_t magic_packet[102];
 
-    // 1. Construir o Magic Packet uma vez
     memset(magic_packet, 0xFF, 6);
     for(int j = 0; j < 16; j++) {
         memcpy(&magic_packet[6 + j * 6], config.mac_address, 6);
     }
 
-    // --- Send by Wi-Fi ---
+    // --- Send by Wi-Fi---
     IPAddress wifi_bcast;
     if(wifi_bcast.fromString(config.broadcastIPStr)) {
         for(int i = 0; i < n; i++) {
@@ -32,24 +31,24 @@ void sendWOL(const char* reason, int n) {
         }
         mqttPublish(("WOL sent (Wi-Fi) - " + String(reason)).c_str());
         Serial.println("WOL sent (Wi-Fi)");
-    } else {
-        Serial.println("Broadcast IP (Wi-Fi) error");
     }
 
-    // --- Send by Ethernet (Offline) ---
-    EthernetUDP ethUdp;
-    ethUdp.begin(config.udp_port);
-    
-    IPAddress eth_bcast(192, 168, 5, 255); 
+    // --- Send by if Ethernet (SPI) ---
+    if (ethernet_lan_present) {
+        EthernetUDP ethUdp;
+        ethUdp.begin(config.udp_port);
+        
+        IPAddress eth_bcast(192, 168, 5, 255); 
 
-    for(int i = 0; i < n; i++) {
-        ethUdp.beginPacket(eth_bcast, config.udp_port);
-        ethUdp.write(magic_packet, sizeof(magic_packet));
-        ethUdp.endPacket();
+        for(int i = 0; i < n; i++) {
+            ethUdp.beginPacket(eth_bcast, config.udp_port);
+            ethUdp.write(magic_packet, sizeof(magic_packet));
+            ethUdp.endPacket();
+        }
+        mqttPublish(("WOL sent (LAN/SPI) - " + String(reason)).c_str());
+        Serial.println("WOL sent (LAN/SPI)");
+        ethUdp.stop();
     }
-    mqttPublish(("WOL sent (LAN) - " + String(reason)).c_str());
-    Serial.println("WOL sent (LAN)");
-    ethUdp.stop();
 
     wolSentAt = millis();
     wolPendingPing = true;
