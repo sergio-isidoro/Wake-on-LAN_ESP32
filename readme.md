@@ -2,7 +2,7 @@
 
 Advanced ESP32 project for sending **Wake-on-LAN (WOL) Magic Packets** and **Shutdown Magic Packets** over Wi-Fi, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
-This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, optional factory reset, and the ability to **Shutdown the PC, wake it up, and check its ping after 1 minute from anywhere in the world via MQTT**.
+This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, optional factory reset, and the ability to **Shutdown the PC, wake it up, and check its ping after 1 minute, this is possible from anywhere in the world via MQTT**.
 
 ---
 
