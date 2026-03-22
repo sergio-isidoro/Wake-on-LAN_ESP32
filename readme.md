@@ -1,5 +1,8 @@
 # Wake-on-LAN ESP32 + Shutdown + MQTT + OTA + LAN (offline) + Portal (Wi-Fi) v6.1
 
+> [!IMPORTANT]
+> **UPGRADE:** This project has been updated and migrated. Follow the latest version here: [Wake-On-Lan_ESP32C3_Zephyr](https://github.com/sergio-isidoro/Wake-On-Lan_ESP32C3_Zephyr)
+
 Advanced ESP32 project for sending **Wake-on-LAN (WOL) Magic Packets** and **Shutdown Magic Packets** over Wi-Fi and a dedicated wired **LAN port (SPI)**, with full MQTT support, OTA updates, ping-based status checks, and a configuration portal hosted on the device using SPIFFS.
 
 This project supports **hardware button-triggered WOL**, scheduled ping after WOL, OTA updates with MQTT progress reporting, optional factory reset, and the ability to **Shutdown the PC, wake it up, and check its ping after 1 minute, this is possible from anywhere in the world via MQTT**.
